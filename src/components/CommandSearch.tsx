@@ -3,7 +3,6 @@ import {
   Search,
   X,
   FileText,
-  Sparkles,
   Copy,
   Check,
   ArrowUpRight,
@@ -47,12 +46,8 @@ export function CommandSearch({
   const { matchedDocs, matchedCards } = useMemo(() => {
     const q = query.trim().toLowerCase();
     if (!q) {
-      return {
-        matchedDocs: archiveDocs,
-        matchedCards: allPromptCards,
-      };
+      return { matchedDocs: archiveDocs, matchedCards: allPromptCards };
     }
-
     const docs = archiveDocs.filter(
       (d) =>
         d.title.toLowerCase().includes(q) ||
@@ -61,7 +56,6 @@ export function CommandSearch({
         d.tags.some((t) => t.toLowerCase().includes(q)) ||
         d.bodyMarkdown.toLowerCase().includes(q)
     );
-
     const cards = allPromptCards.filter(
       (c) =>
         c.title.toLowerCase().includes(q) ||
@@ -70,7 +64,6 @@ export function CommandSearch({
         c.rawPrompt.toLowerCase().includes(q) ||
         c.tags.some((t) => t.toLowerCase().includes(q))
     );
-
     return { matchedDocs: docs, matchedCards: cards };
   }, [query]);
 
@@ -78,55 +71,51 @@ export function CommandSearch({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-start justify-center bg-black/50 px-4 pt-[10vh] backdrop-blur-sm"
+      className="fixed inset-0 z-50 flex items-start justify-center bg-black/55 px-4 pt-[10vh] backdrop-blur-xs"
       onClick={onClose}
     >
       <div
-        className="animate-atelier-in w-full max-w-2xl overflow-hidden rounded-xl border border-[var(--line-strong)] bg-[var(--bg-surface)] shadow-2xl"
+        className="animate-dropbox-in w-full max-w-2xl overflow-hidden border-2 border-[var(--ink-base)] bg-white shadow-2xl"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Search Input Header */}
-        <div className="flex items-center gap-3 border-b border-[var(--line-subtle)] px-5 py-4">
-          <Search className="h-4 w-4 shrink-0 text-[var(--accent)]" />
+        <div className="flex items-center gap-3 border-b border-[var(--blueprint-line)] px-5 py-4">
+          <Search className="h-4 w-4 shrink-0 text-[var(--brand-blue)]" />
           <input
             ref={inputRef}
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="搜索文档标题、正文关键词、标签或 Prompt 卡片（如 Kuwahara、草海、Alpha）..."
-            className="w-full bg-transparent text-sm text-[var(--ink-primary)] placeholder:text-[var(--ink-muted)] focus:outline-none"
+            placeholder="检索档案标题、正文关键词、标签或 Prompt 卡片（如 Kuwahara、草海、Alpha）..."
+            className="w-full bg-transparent text-sm text-[var(--ink-base)] placeholder:text-[var(--ink-muted)] focus:outline-none"
           />
           {query && (
             <button
               onClick={() => setQuery('')}
-              className="rounded p-1 text-[var(--ink-muted)] hover:text-[var(--ink-primary)]"
+              className="p-1 text-[var(--ink-muted)] hover:text-[var(--ink-base)]"
             >
               <X className="h-3.5 w-3.5" />
             </button>
           )}
-          <kbd className="rounded border border-[var(--line-subtle)] px-1.5 py-0.5 font-mono-tech text-[10px] text-[var(--ink-muted)]">
+          <kbd className="border border-[var(--hairline-strong)] px-1.5 py-0.5 font-mono-tech text-[10px] text-[var(--ink-muted)]">
             ESC
           </kbd>
         </div>
 
-        {/* Results */}
-        <div className="max-h-[62vh] overflow-y-auto p-3">
+        <div className="max-h-[60vh] overflow-y-auto p-3">
           {matchedDocs.length === 0 && matchedCards.length === 0 ? (
             <div className="py-12 text-center">
-              <p className="font-editorial text-xl italic text-[var(--ink-muted)]">
-                No matching records found
+              <p className="font-display text-lg font-bold text-[var(--ink-base)]">
+                未找到包含「{query}」的档案或卡片
               </p>
               <p className="mt-1 text-xs text-[var(--ink-muted)]">
-                未找到包含「{query}」的档案或卡片，请换个关键词试试
+                请换一个关键词试试
               </p>
             </div>
           ) : (
             <div className="space-y-4">
               {matchedDocs.length > 0 && (
                 <div>
-                  <div className="mb-1.5 flex items-center justify-between px-2.5">
-                    <span className="font-mono-tech text-[10px] uppercase tracking-[0.14em] text-[var(--ink-muted)]">
-                      档案文档 · DOCUMENTS ({matchedDocs.length})
-                    </span>
+                  <div className="mb-1.5 px-2.5 font-mono-tech text-[10px] font-bold uppercase tracking-[0.14em] text-[var(--brand-blue)]">
+                    DOCUMENTS · 档案文档 ({matchedDocs.length})
                   </div>
                   <div className="space-y-1">
                     {matchedDocs.map((doc) => (
@@ -136,27 +125,27 @@ export function CommandSearch({
                           onSelectDoc(doc.slug);
                           onClose();
                         }}
-                        className="group flex w-full items-center justify-between rounded-lg px-3 py-2.5 text-left transition-colors hover:bg-[var(--bg-surface-alt)]"
+                        className="group flex w-full items-center justify-between px-3 py-2.5 text-left transition-colors hover:bg-[var(--bg-subtle)]"
                       >
                         <div className="flex min-w-0 items-center gap-3">
-                          <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md border border-[var(--line-subtle)] bg-[var(--bg-canvas)] text-[var(--ink-secondary)] group-hover:border-[var(--accent)] group-hover:text-[var(--accent)]">
+                          <span className="flex h-8 w-8 shrink-0 items-center justify-center bg-[var(--brand-blue)] text-white">
                             <FileText className="h-3.5 w-3.5" />
                           </span>
                           <div className="min-w-0">
                             <div className="flex items-center gap-2">
-                              <span className="font-mono-tech text-[10px] text-[var(--ink-muted)]">
+                              <span className="font-mono-tech text-[10px] font-bold text-[var(--brand-blue)]">
                                 NO.{doc.number}
                               </span>
-                              <span className="truncate text-sm font-medium text-[var(--ink-primary)]">
+                              <span className="truncate font-display text-sm font-bold text-[var(--ink-base)]">
                                 {doc.title}
                               </span>
                             </div>
-                            <p className="truncate text-xs text-[var(--ink-muted)]">
+                            <p className="truncate text-xs text-[var(--ink-secondary)]">
                               {doc.subtitle}
                             </p>
                           </div>
                         </div>
-                        <ArrowUpRight className="h-4 w-4 shrink-0 text-[var(--ink-muted)] transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-[var(--accent)]" />
+                        <ArrowUpRight className="h-4 w-4 shrink-0 text-[var(--ink-muted)] group-hover:text-[var(--brand-blue)]" />
                       </button>
                     ))}
                   </div>
@@ -165,16 +154,14 @@ export function CommandSearch({
 
               {matchedCards.length > 0 && (
                 <div>
-                  <div className="mb-1.5 flex items-center justify-between px-2.5">
-                    <span className="font-mono-tech text-[10px] uppercase tracking-[0.14em] text-[var(--ink-muted)]">
-                      Prompt 精炼卡片 · CARDS ({matchedCards.length})
-                    </span>
+                  <div className="mb-1.5 px-2.5 font-mono-tech text-[10px] font-bold uppercase tracking-[0.14em] text-[var(--brand-blue)]">
+                    PROMPT CARDS · 精炼卡片 ({matchedCards.length})
                   </div>
                   <div className="space-y-1">
                     {matchedCards.map((card) => (
                       <div
                         key={card.id}
-                        className="group flex items-center justify-between gap-2 rounded-lg px-3 py-2.5 transition-colors hover:bg-[var(--bg-surface-alt)]"
+                        className="flex items-center justify-between gap-2 px-3 py-2.5 transition-colors hover:bg-[var(--bg-subtle)]"
                       >
                         <button
                           onClick={() => {
@@ -184,32 +171,32 @@ export function CommandSearch({
                           className="flex min-w-0 flex-1 items-center gap-3 text-left"
                         >
                           <span
-                            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md font-mono-tech text-[11px] font-semibold text-white"
+                            className="flex h-8 w-8 shrink-0 items-center justify-center font-mono-tech text-[11px] font-bold text-white"
                             style={{ backgroundColor: card.accentHex }}
                           >
                             #{card.number}
                           </span>
                           <div className="min-w-0">
                             <div className="flex items-center gap-2">
-                              <span className="truncate text-sm font-medium text-[var(--ink-primary)]">
+                              <span className="truncate font-display text-sm font-bold text-[var(--ink-base)]">
                                 {card.title}
                               </span>
-                              <span className="rounded bg-[var(--bg-canvas)] px-1.5 py-0.5 font-mono-tech text-[10px] text-[var(--ink-muted)]">
+                              <span className="bg-[var(--bg-subtle)] px-1.5 py-0.5 font-mono-tech text-[10px] text-[var(--ink-secondary)]">
                                 {card.stage}
                               </span>
                             </div>
-                            <p className="truncate text-xs text-[var(--ink-muted)]">
+                            <p className="truncate text-xs text-[var(--ink-secondary)]">
                               {card.promptSubtitle} · {card.docTitle}
                             </p>
                           </div>
                         </button>
                         <button
                           onClick={() => copy(card.rawPrompt, card.id)}
-                          className="flex shrink-0 items-center gap-1 rounded-md border border-[var(--line-subtle)] bg-[var(--bg-canvas)] px-2.5 py-1 text-[11px] text-[var(--ink-secondary)] transition-colors hover:border-[var(--line-strong)] hover:text-[var(--ink-primary)]"
+                          className="flex shrink-0 items-center gap-1 bg-[var(--ink-base)] px-2.5 py-1 text-[11px] font-semibold text-white transition-colors hover:bg-[var(--brand-blue)]"
                         >
                           {copiedId === card.id ? (
                             <>
-                              <Check className="h-3 w-3 text-emerald-600" />
+                              <Check className="h-3 w-3" />
                               <span>已复制</span>
                             </>
                           ) : (
@@ -228,13 +215,9 @@ export function CommandSearch({
           )}
         </div>
 
-        {/* Footer Hints */}
-        <div className="flex items-center justify-between border-t border-[var(--line-subtle)] bg-[var(--bg-canvas)]/70 px-5 py-2.5 text-[11px] text-[var(--ink-muted)]">
-          <div className="flex items-center gap-1.5">
-            <Sparkles className="h-3 w-3 text-[var(--accent)]" />
-            <span>全文检索自动覆盖 content/ 下所有新增 Markdown 档案</span>
-          </div>
-          <span className="hidden font-mono-tech sm:inline">⌘K / CTRL+K</span>
+        <div className="flex items-center justify-between border-t border-[var(--hairline)] bg-[var(--bg-subtle)] px-5 py-2.5 font-mono-tech text-[10px] text-[var(--ink-muted)]">
+          <span>AUTO-INDEXED FROM CONTENT/**/*.MD</span>
+          <span>⌘K / CTRL+K</span>
         </div>
       </div>
     </div>

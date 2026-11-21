@@ -1,10 +1,10 @@
 export const siteConfig = {
   brandEn: 'ATELIER AI',
-  brandZh: 'AI 研习档案',
-  tagline: 'Field Notes, Prompt Systems & Visual Engineering Archive',
+  brandZh: 'AI 研习指南',
+  tagline: 'Prompt Systems, Visual Engineering & AI Field Notes',
   manifesto:
-    '以出版级档案的秩序，系统沉淀 AI 工程实践、可复用 Prompt 卡片与技术拆解。所有内容以纯 Markdown 文件驱动，随放随收，持续生长。',
-  edition: 'VOL. 01 · EST. 2026',
+    '像设计规范手册一样清晰、克制、可交互。所有 AI 学习资料与 Prompt 卡片集以纯 Markdown 文件驱动，放入即归档。',
+  edition: 'GUIDELINES V1.0 · 2026',
   githubRepo: 'https://github.com/N0tANTi/ai-atelier-archive',
   folderCategories: {
     prompts: 'Prompt 卡片集',

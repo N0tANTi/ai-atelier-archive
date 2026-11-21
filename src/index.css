@@ -1,118 +1,197 @@
 @import "tailwindcss";
 
 :root {
-  --bg-canvas: #f5f1e8;
-  --bg-surface: #fbf9f4;
-  --bg-surface-alt: #ede7db;
-  --bg-specimen: #171615;
-  --bg-specimen-elevated: #22201e;
-  --ink-primary: #191816;
-  --ink-secondary: #57524b;
-  --ink-muted: #8a8378;
-  --ink-on-specimen: #f2ede3;
-  --ink-on-specimen-muted: #a8a095;
-  --line-subtle: rgba(25, 24, 22, 0.11);
-  --line-strong: rgba(25, 24, 22, 0.26);
-  --line-solid: #191816;
-  --accent: #b84a2a;
-  --accent-soft: rgba(184, 74, 42, 0.1);
-  --accent-cobalt: #2b4c7e;
-  --shadow-card: 0 1px 2px rgba(25, 24, 22, 0.04), 0 14px 34px -18px rgba(25, 24, 22, 0.16);
-  --shadow-hover: 0 2px 6px rgba(25, 24, 22, 0.06), 0 22px 44px -20px rgba(25, 24, 22, 0.24);
-  --grid-line: rgba(25, 24, 22, 0.045);
-}
+  --brand-blue: #0061ff;
+  --brand-blue-dark: #004ecc;
+  --ink-base: #1e1919;
+  --ink-secondary: #524d4d;
+  --ink-muted: #7a7575;
+  --bg-canvas: #ffffff;
+  --bg-subtle: #f7f5f2;
+  --bg-dark-band: #1e1919;
+  --bg-dark-elevated: #282323;
+  --blueprint-line: rgba(0, 97, 255, 0.16);
+  --blueprint-line-strong: rgba(0, 97, 255, 0.34);
+  --hairline: rgba(30, 25, 25, 0.11);
+  --hairline-strong: rgba(30, 25, 25, 0.24);
 
-html.dark {
-  --bg-canvas: #131211;
-  --bg-surface: #1b1917;
-  --bg-surface-alt: #24211e;
-  --bg-specimen: #0d0c0b;
-  --bg-specimen-elevated: #171514;
-  --ink-primary: #f2ede3;
-  --ink-secondary: #beb6aa;
-  --ink-muted: #989084;
-  --ink-on-specimen: #f2ede3;
-  --ink-on-specimen-muted: #9b9387;
-  --line-subtle: rgba(242, 237, 227, 0.11);
-  --line-strong: rgba(242, 237, 227, 0.24);
-  --line-solid: #f2ede3;
-  --accent: #df6c4a;
-  --accent-soft: rgba(223, 108, 74, 0.14);
-  --accent-cobalt: #6c96d4;
-  --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.28), 0 16px 36px -18px rgba(0, 0, 0, 0.65);
-  --shadow-hover: 0 4px 10px rgba(0, 0, 0, 0.36), 0 26px 50px -20px rgba(0, 0, 0, 0.8);
-  --grid-line: rgba(242, 237, 227, 0.04);
+  /* Authentic Dropbox Brand Guidelines Duotone Swatches */
+  --tile-navy-bg: #2b4464;
+  --tile-navy-fg: #82b8ff;
+  --tile-gold-bg: #fad24b;
+  --tile-gold-fg: #594404;
+  --tile-cyan-bg: #3dd6f5;
+  --tile-cyan-fg: #0b4c5f;
+  --tile-vermilion-bg: #fa551e;
+  --tile-vermilion-fg: #6b1506;
+  --tile-lime-bg: #b4dc19;
+  --tile-lime-fg: #24450a;
+  --tile-tangerine-bg: #ff8c19;
+  --tile-tangerine-fg: #5c2704;
+  --tile-maroon-bg: #61082b;
+  --tile-maroon-fg: #ff9ec7;
+  --tile-lavender-bg: #c8aff0;
+  --tile-lavender-fg: #441c78;
 }
 
 @layer base {
   html {
     background-color: var(--bg-canvas);
-    color: var(--ink-primary);
-    font-family: 'Plus Jakarta Sans', 'Noto Sans SC', -apple-system, BlinkMacSystemFont, sans-serif;
+    color: var(--ink-base);
+    font-family: 'Inter', 'Noto Sans SC', -apple-system, BlinkMacSystemFont, sans-serif;
     scroll-behavior: smooth;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    transition: background-color 0.35s cubic-bezier(0.22, 1, 0.36, 1), color 0.35s cubic-bezier(0.22, 1, 0.36, 1);
   }
 
   body {
     margin: 0;
     min-height: 100vh;
     background-color: var(--bg-canvas);
-    color: var(--ink-primary);
+    color: var(--ink-base);
     overflow-x: hidden;
+    padding-bottom: 52px; /* Space for Dropbox-style bottom dock */
   }
 
   ::selection {
-    background-color: var(--accent);
-    color: #fbf9f4;
+    background-color: var(--brand-blue);
+    color: #ffffff;
   }
 }
 
-/* Tactile paper grain overlay */
-.paper-grain::before {
-  content: '';
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  z-index: 40;
-  opacity: 0.032;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 220 220' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.82' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-}
-
-html.dark .paper-grain::before {
-  opacity: 0.04;
-}
-
-/* Subtle architectural drafting grid (Dropbox Brand inspired) */
-.bg-atelier-grid {
-  background-image:
-    linear-gradient(to right, var(--grid-line) 1px, transparent 1px),
-    linear-gradient(to bottom, var(--grid-line) 1px, transparent 1px);
-  background-size: 36px 36px;
-}
-
-.font-editorial {
-  font-family: 'Instrument Serif', 'Noto Serif SC', Georgia, serif;
-}
-
-.font-serif-cn {
-  font-family: 'Noto Serif SC', 'Instrument Serif', Georgia, serif;
+.font-display {
+  font-family: 'Space Grotesk', 'Noto Sans SC', sans-serif;
+  letter-spacing: -0.025em;
 }
 
 .font-mono-tech {
   font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
 }
 
-/* Editorial transitions */
-.ease-atelier {
-  transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+/* Blueprint architectural hairline background (Dropbox Brand inspired) */
+.blueprint-grid-bg {
+  background-image:
+    linear-gradient(to right, rgba(0, 97, 255, 0.065) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(0, 97, 255, 0.065) 1px, transparent 1px);
+  background-size: 48px 48px;
 }
 
-@keyframes fadeSlideUp {
+/* Smooth Dropbox cubic-bezier physics */
+.ease-dropbox {
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Mosaic Tile Duotone -> Wireframe Hover Mechanics */
+.mosaic-tile {
+  position: relative;
+  overflow: hidden;
+  transition:
+    background-color 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+    color 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+    transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.mosaic-tile .tile-solid-art {
+  opacity: 1;
+  transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1), transform 0.45s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.mosaic-tile .tile-wire-art {
+  opacity: 0;
+  transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1), transform 0.45s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.mosaic-tile:hover {
+  background-color: var(--ink-base) !important;
+  color: #ffffff !important;
+}
+
+.mosaic-tile:hover .tile-label,
+.mosaic-tile:hover .tile-meta {
+  color: #ffffff !important;
+}
+
+.mosaic-tile:hover .tile-meta-muted {
+  color: rgba(255, 255, 255, 0.65) !important;
+}
+
+.mosaic-tile:hover .tile-solid-art {
+  opacity: 0;
+  transform: scale(0.96);
+}
+
+.mosaic-tile:hover .tile-wire-art {
+  opacity: 1;
+  transform: scale(1.03);
+}
+
+/* Authentic 8-Tile + Center Blue Square Dropbox Pinwheel Grid (3 cols x 5 rows, 0 gaps) */
+.dropbox-mosaic {
+  display: grid;
+  gap: 8px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.dropbox-mosaic .dm-center {
+  grid-column: 1 / -1;
+  min-height: 68px;
+}
+
+.dropbox-mosaic .dm-tile {
+  min-height: 156px;
+}
+
+@media (min-width: 900px) {
+  .dropbox-mosaic {
+    gap: 10px;
+    grid-template-columns: minmax(0, 1fr) 82px minmax(0, 1fr);
+    grid-template-rows: 172px 152px 82px 152px 172px;
+  }
+
+  .dropbox-mosaic .dm-tile {
+    min-height: 0;
+  }
+
+  .dropbox-mosaic .dm-1 { grid-column: 1 / 2; grid-row: 1 / 2; }
+  .dropbox-mosaic .dm-2 { grid-column: 2 / 4; grid-row: 1 / 2; }
+  .dropbox-mosaic .dm-3 { grid-column: 1 / 3; grid-row: 2 / 3; }
+  .dropbox-mosaic .dm-4 { grid-column: 3 / 4; grid-row: 2 / 4; }
+  .dropbox-mosaic .dm-center { grid-column: 2 / 3; grid-row: 3 / 4; min-height: 0; }
+  .dropbox-mosaic .dm-5 { grid-column: 1 / 2; grid-row: 3 / 5; }
+  .dropbox-mosaic .dm-6 { grid-column: 2 / 4; grid-row: 4 / 5; }
+  .dropbox-mosaic .dm-7 { grid-column: 1 / 3; grid-row: 5 / 6; }
+  .dropbox-mosaic .dm-8 { grid-column: 3 / 4; grid-row: 5 / 6; }
+}
+
+/* Compact overlay variant so all 8 tiles fit comfortably inside 100vh modal */
+.dropbox-mosaic-overlay {
+  display: grid;
+  gap: 8px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+@media (min-width: 900px) {
+  .dropbox-mosaic-overlay {
+    gap: 10px;
+    grid-template-columns: minmax(0, 1fr) 74px minmax(0, 1fr);
+    grid-template-rows: 132px 118px 74px 118px 132px;
+  }
+
+  .dropbox-mosaic-overlay .dm-1 { grid-column: 1 / 2; grid-row: 1 / 2; }
+  .dropbox-mosaic-overlay .dm-2 { grid-column: 2 / 4; grid-row: 1 / 2; }
+  .dropbox-mosaic-overlay .dm-3 { grid-column: 1 / 3; grid-row: 2 / 3; }
+  .dropbox-mosaic-overlay .dm-4 { grid-column: 3 / 4; grid-row: 2 / 4; }
+  .dropbox-mosaic-overlay .dm-center { grid-column: 2 / 3; grid-row: 3 / 4; }
+  .dropbox-mosaic-overlay .dm-5 { grid-column: 1 / 2; grid-row: 3 / 5; }
+  .dropbox-mosaic-overlay .dm-6 { grid-column: 2 / 4; grid-row: 4 / 5; }
+  .dropbox-mosaic-overlay .dm-7 { grid-column: 1 / 3; grid-row: 5 / 6; }
+  .dropbox-mosaic-overlay .dm-8 { grid-column: 3 / 4; grid-row: 5 / 6; }
+}
+
+@keyframes panelFadeUp {
   from {
     opacity: 0;
-    transform: translateY(14px);
+    transform: translateY(12px);
   }
   to {
     opacity: 1;
@@ -120,8 +199,8 @@ html.dark .paper-grain::before {
   }
 }
 
-.animate-atelier-in {
-  animation: fadeSlideUp 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
+.animate-dropbox-in {
+  animation: panelFadeUp 0.45s cubic-bezier(0.4, 0, 0.2, 1) both;
 }
 
 /* Custom thin scrollbar */
@@ -135,128 +214,119 @@ html.dark .paper-grain::before {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: var(--line-strong);
+  background: rgba(30, 25, 25, 0.22);
   border-radius: 999px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--ink-muted);
+  background: var(--brand-blue);
 }
 
-/* Editorial Markdown Prose styling for any future study notes */
-.editorial-prose {
-  color: var(--ink-primary);
+/* Crisp Swiss Markdown Prose */
+.swiss-prose {
+  color: var(--ink-base);
   font-size: 1rem;
-  line-height: 1.85;
+  line-height: 1.82;
 }
 
-.editorial-prose h1,
-.editorial-prose h2,
-.editorial-prose h3,
-.editorial-prose h4 {
-  font-family: 'Noto Serif SC', 'Instrument Serif', Georgia, serif;
-  color: var(--ink-primary);
-  font-weight: 600;
-  letter-spacing: -0.015em;
+.swiss-prose h1,
+.swiss-prose h2,
+.swiss-prose h3,
+.swiss-prose h4 {
+  font-family: 'Space Grotesk', 'Noto Sans SC', sans-serif;
+  color: var(--ink-base);
+  font-weight: 700;
+  letter-spacing: -0.025em;
   margin-top: 2.2em;
-  margin-bottom: 0.8em;
-  line-height: 1.35;
+  margin-bottom: 0.75em;
+  line-height: 1.28;
 }
 
-.editorial-prose h2 {
-  font-size: 1.5rem;
-  padding-bottom: 0.55rem;
-  border-bottom: 1px solid var(--line-subtle);
+.swiss-prose h2 {
+  font-size: 1.65rem;
+  padding-bottom: 0.6rem;
+  border-bottom: 1px solid var(--blueprint-line);
 }
 
-.editorial-prose h3 {
-  font-size: 1.2rem;
+.swiss-prose h3 {
+  font-size: 1.25rem;
 }
 
-.editorial-prose p {
-  margin-bottom: 1.25em;
+.swiss-prose p {
+  margin-bottom: 1.2em;
   color: var(--ink-secondary);
 }
 
-.editorial-prose strong {
-  color: var(--ink-primary);
+.swiss-prose strong {
+  color: var(--ink-base);
   font-weight: 600;
 }
 
-.editorial-prose ul,
-.editorial-prose ol {
-  margin: 1em 0 1.4em 1.35em;
+.swiss-prose ul,
+.swiss-prose ol {
+  margin: 1em 0 1.35em 1.35em;
   color: var(--ink-secondary);
 }
 
-.editorial-prose ul {
+.swiss-prose ul {
   list-style-type: disc;
 }
 
-.editorial-prose ol {
+.swiss-prose ol {
   list-style-type: decimal;
 }
 
-.editorial-prose li {
+.swiss-prose li {
   margin-bottom: 0.45em;
 }
 
-.editorial-prose blockquote {
-  border-left: 2px solid var(--accent);
-  padding: 0.5rem 0 0.5rem 1.25rem;
+.swiss-prose blockquote {
+  border-left: 3px solid var(--brand-blue);
+  padding: 0.75rem 1.25rem;
   margin: 1.5rem 0;
-  background: var(--bg-surface);
-  color: var(--ink-secondary);
-  font-style: italic;
+  background: var(--bg-subtle);
+  color: var(--ink-base);
 }
 
-.editorial-prose code:not(pre code) {
+.swiss-prose code:not(pre code) {
   font-family: 'JetBrains Mono', monospace;
-  font-size: 0.86em;
+  font-size: 0.85em;
   padding: 0.14em 0.42em;
-  border-radius: 4px;
-  background: var(--bg-surface-alt);
-  border: 1px solid var(--line-subtle);
-  color: var(--accent);
+  border-radius: 3px;
+  background: rgba(0, 97, 255, 0.08);
+  color: var(--brand-blue);
 }
 
-.editorial-prose pre {
-  background: var(--bg-specimen);
-  color: var(--ink-on-specimen);
-  padding: 1.25rem 1.4rem;
-  border-radius: 10px;
+.swiss-prose pre {
+  background: var(--bg-dark-band);
+  color: #f5f3ef;
+  padding: 1.35rem 1.5rem;
+  border-radius: 4px;
   overflow-x: auto;
   margin: 1.5rem 0;
-  border: 1px solid rgba(255, 255, 255, 0.08);
   font-family: 'JetBrains Mono', monospace;
-  font-size: 0.86rem;
+  font-size: 0.85rem;
   line-height: 1.75;
 }
 
-.editorial-prose hr {
-  border: none;
-  border-top: 1px solid var(--line-subtle);
-  margin: 2.5rem 0;
-}
-
-.editorial-prose table {
+.swiss-prose table {
   width: 100%;
   border-collapse: collapse;
   margin: 1.5rem 0;
   font-size: 0.92rem;
 }
 
-.editorial-prose th,
-.editorial-prose td {
-  border-bottom: 1px solid var(--line-subtle);
-  padding: 0.7rem 0.85rem;
+.swiss-prose th,
+.swiss-prose td {
+  border-bottom: 1px solid var(--hairline);
+  padding: 0.75rem 0.9rem;
   text-align: left;
 }
 
-.editorial-prose th {
+.swiss-prose th {
   font-family: 'JetBrains Mono', monospace;
-  font-size: 0.76rem;
+  font-size: 0.75rem;
   text-transform: uppercase;
   letter-spacing: 0.06em;
-  color: var(--ink-muted);
+  color: var(--brand-blue);
 }

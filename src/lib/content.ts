@@ -62,12 +62,12 @@ export interface ArchiveDoc {
 }
 
 const STAGE_ACCENTS = [
-  '#5A7D5E', // Meadow sage
-  '#3F7D63', // Wind grass emerald
-  '#3A6B8C', // Sky cerulean
-  '#6E7A45', // Canopy olive
-  '#4A557A', // Cel slate indigo
-  '#B84A2A', // Sunset terracotta
+  '#2B4464', // Dropbox Slate Navy
+  '#00A5CF', // Dropbox Bright Cyan
+  '#D99B00', // Dropbox Warm Gold
+  '#6E9400', // Dropbox Chartreuse Lime
+  '#7D4FD1', // Dropbox Soft Lavender Deep
+  '#FA551E', // Dropbox Vivid Vermilion
 ];
 
 interface FrontmatterResult {

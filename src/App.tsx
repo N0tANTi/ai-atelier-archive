@@ -6,7 +6,9 @@ import { PromptLibraryView } from './components/PromptLibraryView';
 import { GuideView } from './components/GuideView';
 import { CommandSearch } from './components/CommandSearch';
 import { CardFocusModal } from './components/CardFocusModal';
+import { BottomDock } from './components/BottomDock';
 import { Footer } from './components/Footer';
+import type { MosaicAction } from './components/PinwheelMosaic';
 import {
   allPromptCards,
   getDocBySlug,
@@ -16,6 +18,7 @@ import {
 interface RouteState {
   view: NavRoute;
   slug?: string;
+  docTab?: 'cards' | 'master';
 }
 
 function parseHash(): RouteState {
@@ -23,7 +26,14 @@ function parseHash(): RouteState {
   if (raw === '/cards') return { view: 'cards' };
   if (raw === '/guide') return { view: 'guide' };
   if (raw.startsWith('/doc/')) {
-    return { view: 'doc', slug: raw.slice('/doc/'.length) };
+    const [slugPart, queryPart] = raw.slice('/doc/'.length).split('?');
+    const params = new URLSearchParams(queryPart || '');
+    const tabParam = params.get('tab');
+    return {
+      view: 'doc',
+      slug: slugPart,
+      docTab: tabParam === 'master' ? 'master' : tabParam === 'cards' ? 'cards' : undefined,
+    };
   }
   return { view: 'home' };
 }
@@ -31,28 +41,9 @@ function parseHash(): RouteState {
 export function App() {
   const [route, setRoute] = useState<RouteState>(() => parseHash());
   const [searchOpen, setSearchOpen] = useState(false);
+  const [mosaicOpen, setMosaicOpen] = useState(false);
   const [focusPool, setFocusPool] = useState<PromptCard[]>(allPromptCards);
   const [focusIndex, setFocusIndex] = useState<number | null>(null);
-  const [theme, setTheme] = useState<'light' | 'dark'>(() => {
-    try {
-      const saved = localStorage.getItem('atelier-theme');
-      if (saved === 'dark' || saved === 'light') return saved;
-    } catch {
-      // ignore
-    }
-    return 'light';
-  });
-
-  useEffect(() => {
-    const root = document.documentElement;
-    if (theme === 'dark') root.classList.add('dark');
-    else root.classList.remove('dark');
-    try {
-      localStorage.setItem('atelier-theme', theme);
-    } catch {
-      // ignore
-    }
-  }, [theme]);
 
   useEffect(() => {
     const onHashChange = () => setRoute(parseHash());
@@ -60,11 +51,11 @@ export function App() {
     return () => window.removeEventListener('hashchange', onHashChange);
   }, []);
 
-  // Global ⌘K / Ctrl+K and '/' shortcut for Command Search
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
         e.preventDefault();
+        setMosaicOpen(false);
         setSearchOpen((prev) => !prev);
       } else if (
         e.key === '/' &&
@@ -73,6 +64,7 @@ export function App() {
         document.activeElement?.tagName !== 'TEXTAREA'
       ) {
         e.preventDefault();
+        setMosaicOpen(false);
         setSearchOpen(true);
       }
     };
@@ -95,8 +87,8 @@ export function App() {
   );
 
   const handleOpenDoc = useCallback(
-    (slug: string) => {
-      navigate(`/doc/${slug}`);
+    (slug: string, tab?: 'cards' | 'master') => {
+      navigate(tab ? `/doc/${slug}?tab=${tab}` : `/doc/${slug}`);
     },
     [navigate]
   );
@@ -110,19 +102,36 @@ export function App() {
     []
   );
 
+  const handleOverlayMosaicAction = useCallback(
+    (action: MosaicAction) => {
+      if (action.type === 'cards') handleNav('cards');
+      else if (action.type === 'guide') handleNav('guide');
+      else if (action.type === 'search') setSearchOpen(true);
+      else if (action.type === 'doc') handleOpenDoc(action.slug, action.tab);
+      else if (action.type === 'category') handleNav('home');
+    },
+    [handleNav, handleOpenDoc]
+  );
+
   const activeDoc =
     route.view === 'doc' && route.slug ? getDocBySlug(route.slug) : undefined;
 
+  const currentSectionLabel =
+    route.view === 'home'
+      ? '首页矩阵 · INDEX'
+      : route.view === 'cards'
+        ? 'Prompt 卡片库'
+        : route.view === 'guide'
+          ? '归档规范'
+          : activeDoc?.title ?? '档案详情';
+
   return (
-    <div className="paper-grain flex min-h-screen flex-col">
+    <div className="flex min-h-screen flex-col bg-white">
       <Navbar
         activeRoute={route.view}
         onNavigate={handleNav}
         onOpenSearch={() => setSearchOpen(true)}
-        theme={theme}
-        onToggleTheme={() =>
-          setTheme((prev) => (prev === 'light' ? 'dark' : 'light'))
-        }
+        onOpenMosaic={() => setMosaicOpen((prev) => !prev)}
       />
 
       <main className="flex-1">
@@ -131,6 +140,7 @@ export function App() {
             onOpenDoc={handleOpenDoc}
             onOpenCards={() => handleNav('cards')}
             onOpenGuide={() => handleNav('guide')}
+            onOpenSearch={() => setSearchOpen(true)}
             onFocusCard={handleFocusCard}
           />
         )}
@@ -144,6 +154,7 @@ export function App() {
         {route.view === 'doc' && activeDoc && (
           <DocumentView
             doc={activeDoc}
+            initialTab={route.docTab}
             onBack={() => handleNav('home')}
             onFocusCard={handleFocusCard}
           />
@@ -151,7 +162,7 @@ export function App() {
 
         {route.view === 'doc' && !activeDoc && (
           <div className="mx-auto max-w-xl px-5 py-24 text-center">
-            <p className="font-editorial text-4xl italic text-[var(--ink-muted)]">
+            <p className="font-display text-3xl font-bold text-[var(--ink-base)]">
               Document not found
             </p>
             <p className="mt-2 text-sm text-[var(--ink-secondary)]">
@@ -159,9 +170,9 @@ export function App() {
             </p>
             <button
               onClick={() => handleNav('home')}
-              className="mt-6 rounded-full bg-[var(--ink-primary)] px-5 py-2.5 text-xs font-medium text-[var(--bg-canvas)]"
+              className="mt-6 bg-[var(--brand-blue)] px-5 py-2.5 text-xs font-semibold text-white hover:bg-[var(--ink-base)]"
             >
-              返回档案目录
+              返回首页矩阵
             </button>
           </div>
         )}
@@ -169,10 +180,26 @@ export function App() {
 
       <Footer />
 
+      <BottomDock
+        sectionLabel={currentSectionLabel}
+        mosaicOpen={mosaicOpen}
+        onToggleMosaic={() => setMosaicOpen((prev) => !prev)}
+        onCloseMosaic={() => setMosaicOpen(false)}
+        onMosaicAction={handleOverlayMosaicAction}
+        onOpenSearch={() => {
+          setMosaicOpen(false);
+          setSearchOpen(true);
+        }}
+        onOpenGuide={() => {
+          setMosaicOpen(false);
+          handleNav('guide');
+        }}
+      />
+
       <CommandSearch
         open={searchOpen}
         onClose={() => setSearchOpen(false)}
-        onSelectDoc={handleOpenDoc}
+        onSelectDoc={(slug) => handleOpenDoc(slug)}
         onFocusCard={(card) => handleFocusCard(card, allPromptCards)}
       />
 
@@ -181,7 +208,7 @@ export function App() {
         activeIndex={focusIndex}
         onClose={() => setFocusIndex(null)}
         onChangeIndex={setFocusIndex}
-        onGoToDoc={handleOpenDoc}
+        onGoToDoc={(slug) => handleOpenDoc(slug)}
       />
     </div>
   );

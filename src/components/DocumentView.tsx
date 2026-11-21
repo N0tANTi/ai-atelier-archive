@@ -11,18 +11,21 @@ import {
   CheckCircle2,
   Circle,
   BookOpen,
+  Sliders,
 } from 'lucide-react';
 import type { ArchiveDoc, PromptCard } from '../lib/content';
 import { useCopy } from '../lib/useCopy';
 import { PromptCardItem } from './PromptCardItem';
+import { InteractiveSpecimenWidgets } from './InteractiveSpecimenWidgets';
 
 interface DocumentViewProps {
   doc: ArchiveDoc;
+  initialTab?: 'cards' | 'master';
   onBack: () => void;
   onFocusCard: (card: PromptCard, pool: PromptCard[]) => void;
 }
 
-type DocTab = 'cards' | 'master' | 'article' | 'raw';
+type DocTab = 'cards' | 'master' | 'specimen' | 'article' | 'raw';
 
 function renderInlineCode(text: string) {
   const parts = text.split(/(`[^`]+`)/g);
@@ -31,7 +34,7 @@ function renderInlineCode(text: string) {
       return (
         <code
           key={i}
-          className="mx-0.5 rounded bg-white/10 px-1.5 py-0.5 font-mono-tech text-[12px] text-[#f4b197]"
+          className="mx-0.5 bg-white/12 px-1.5 py-0.5 font-mono-tech text-[12px] text-[#3DD6F5]"
         >
           {part.slice(1, -1)}
         </code>
@@ -41,15 +44,21 @@ function renderInlineCode(text: string) {
   });
 }
 
-export function DocumentView({ doc, onBack, onFocusCard }: DocumentViewProps) {
+export function DocumentView({
+  doc,
+  initialTab,
+  onBack,
+  onFocusCard,
+}: DocumentViewProps) {
   const isPromptDeck = doc.promptCards.length > 0;
+  const hasInteractiveSpecimens = doc.rawMarkdown.includes('Kuwahara') && doc.rawMarkdown.includes('Alpha');
+
   const [activeTab, setActiveTab] = useState<DocTab>(
-    isPromptDeck ? 'cards' : 'article'
+    initialTab ?? (isPromptDeck ? 'cards' : 'article')
   );
   const [deckLayout, setDeckLayout] = useState<'grid' | 'filmstrip'>('grid');
   const { copiedId, copy } = useCopy();
 
-  // Interactive Stage Checklist persisted per document in localStorage
   const storageKey = `atelier-stage-progress:${doc.slug}`;
   const [completedStages, setCompletedStages] = useState<number[]>(() => {
     try {
@@ -61,9 +70,9 @@ export function DocumentView({ doc, onBack, onFocusCard }: DocumentViewProps) {
   });
 
   useEffect(() => {
-    setActiveTab(doc.promptCards.length > 0 ? 'cards' : 'article');
+    setActiveTab(initialTab ?? (doc.promptCards.length > 0 ? 'cards' : 'article'));
     window.scrollTo({ top: 0, behavior: 'smooth' });
-  }, [doc.slug, doc.promptCards.length]);
+  }, [doc.slug, initialTab, doc.promptCards.length]);
 
   const toggleStage = (stageIndex: number) => {
     setCompletedStages((prev) => {
@@ -73,7 +82,7 @@ export function DocumentView({ doc, onBack, onFocusCard }: DocumentViewProps) {
       try {
         localStorage.setItem(storageKey, JSON.stringify(next));
       } catch {
-        // ignore storage errors
+        // ignore
       }
       return next;
     });
@@ -84,126 +93,105 @@ export function DocumentView({ doc, onBack, onFocusCard }: DocumentViewProps) {
     .join('\n\n');
 
   return (
-    <div className="animate-atelier-in">
-      {/* Editorial Document Cover Header */}
-      <section className="bg-atelier-grid border-b border-[var(--line-subtle)]">
-        <div className="mx-auto max-w-[1320px] px-5 pb-10 pt-8 sm:px-8 sm:pb-12 sm:pt-10">
-          {/* Top Breadcrumb Bar */}
+    <div className="animate-dropbox-in">
+      {/* Bold Dropbox-Style Saturated Hero Header Band */}
+      <section className="blueprint-grid-bg border-b border-[var(--blueprint-line)] bg-white">
+        <div className="mx-auto max-w-[1400px] border-x border-[var(--blueprint-line)] px-5 pb-10 pt-8 sm:px-8 sm:pb-12 sm:pt-10">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <button
               onClick={onBack}
-              className="group inline-flex items-center gap-2 font-mono-tech text-xs text-[var(--ink-secondary)] transition-colors hover:text-[var(--accent)]"
+              className="group inline-flex items-center gap-2 font-mono-tech text-xs font-semibold text-[var(--ink-secondary)] transition-colors hover:text-[var(--brand-blue)]"
             >
               <ArrowLeft className="h-3.5 w-3.5 transition-transform group-hover:-translate-x-0.5" />
-              <span>返回档案目录 / INDEX</span>
+              <span>返回知识矩阵 / INDEX</span>
             </button>
 
             <div className="flex items-center gap-3 font-mono-tech text-[11px] text-[var(--ink-muted)]">
-              <span>ARCHIVE NO. {doc.number}</span>
-              <span>·</span>
+              <span className="bg-[var(--brand-blue)] px-2 py-0.5 font-bold text-white">
+                NO.{doc.number}
+              </span>
               <span>{doc.date}</span>
               <span className="hidden sm:inline">·</span>
               <span className="hidden sm:inline">{doc.filePath}</span>
             </div>
           </div>
 
-          {/* Main Title & Actions */}
-          <div className="mt-8 grid grid-cols-1 items-end gap-8 lg:grid-cols-12">
+          <div className="mt-7 grid grid-cols-1 items-end gap-8 lg:grid-cols-12">
             <div className="lg:col-span-8">
               <div className="flex flex-wrap items-center gap-2">
-                <span className="rounded-full bg-[var(--accent-soft)] px-3 py-1 font-mono-tech text-[11px] font-medium text-[var(--accent)]">
+                <span className="bg-[#FAD24B] px-2.5 py-1 font-mono-tech text-[11px] font-bold text-[#1E1919]">
                   {doc.category}
                 </span>
                 {doc.tags.map((tag) => (
                   <span
                     key={tag}
-                    className="rounded-full border border-[var(--line-subtle)] bg-[var(--bg-surface)] px-2.5 py-0.5 font-mono-tech text-[11px] text-[var(--ink-secondary)]"
+                    className="border border-[var(--hairline-strong)] bg-white px-2.5 py-0.5 font-mono-tech text-[11px] text-[var(--ink-secondary)]"
                   >
                     #{tag}
                   </span>
                 ))}
               </div>
 
-              <h1 className="mt-4 font-serif-cn text-3xl font-semibold leading-tight tracking-tight text-[var(--ink-primary)] sm:text-5xl">
+              <h1 className="mt-4 font-display text-3xl font-bold leading-tight tracking-[-0.03em] text-[var(--ink-base)] sm:text-5xl">
                 {doc.title}
               </h1>
-              <p className="mt-3 text-base text-[var(--ink-secondary)]">
+              <p className="mt-2.5 text-base text-[var(--ink-secondary)]">
                 {doc.subtitle}
               </p>
             </div>
 
-            {/* Right: Swatches & Bulk Copy Actions */}
-            <div className="flex flex-col items-start gap-3 lg:col-span-4 lg:items-end">
-              <div className="flex items-center gap-2 rounded-full border border-[var(--line-subtle)] bg-[var(--bg-surface)] px-3.5 py-1.5">
-                <span className="font-mono-tech text-[10px] uppercase tracking-wider text-[var(--ink-muted)]">
-                  PALETTE
-                </span>
-                <div className="flex items-center gap-1.5">
-                  {doc.palette.map((hex) => (
-                    <span
-                      key={hex}
-                      title={hex}
-                      className="h-3.5 w-3.5 rounded-full border border-black/15"
-                      style={{ backgroundColor: hex }}
-                    />
-                  ))}
-                </div>
-              </div>
+            {/* Bulk Copy Actions */}
+            <div className="flex flex-wrap gap-2.5 lg:col-span-4 lg:justify-end">
+              {isPromptDeck && (
+                <button
+                  onClick={() => copy(allCardsCombined, 'copy-all-cards')}
+                  className="inline-flex items-center gap-1.5 border border-[var(--ink-base)] bg-white px-4 py-2.5 text-xs font-semibold text-[var(--ink-base)] transition-colors hover:bg-[var(--ink-base)] hover:text-white"
+                >
+                  {copiedId === 'copy-all-cards' ? (
+                    <>
+                      <Check className="h-3.5 w-3.5 text-emerald-600" />
+                      <span>已复制全部 {doc.promptCards.length} 张卡片</span>
+                    </>
+                  ) : (
+                    <>
+                      <Copy className="h-3.5 w-3.5" />
+                      <span>复制全部卡片</span>
+                    </>
+                  )}
+                </button>
+              )}
 
-              <div className="flex flex-wrap gap-2">
-                {isPromptDeck && (
-                  <button
-                    onClick={() => copy(allCardsCombined, 'copy-all-cards')}
-                    className="inline-flex items-center gap-1.5 rounded-full border border-[var(--line-strong)] bg-[var(--bg-surface)] px-4 py-2 text-xs font-medium text-[var(--ink-primary)] transition-colors hover:border-[var(--line-solid)]"
-                  >
-                    {copiedId === 'copy-all-cards' ? (
-                      <>
-                        <Check className="h-3.5 w-3.5 text-emerald-600" />
-                        <span>已复制全部 {doc.promptCards.length} 张卡片</span>
-                      </>
-                    ) : (
-                      <>
-                        <Copy className="h-3.5 w-3.5" />
-                        <span>复制全部卡片</span>
-                      </>
-                    )}
-                  </button>
-                )}
-
-                {doc.masterPrompt && (
-                  <button
-                    onClick={() =>
-                      copy(doc.masterPrompt!.content, 'header-master')
-                    }
-                    className="inline-flex items-center gap-1.5 rounded-full bg-[var(--ink-primary)] px-4 py-2 text-xs font-medium text-[var(--bg-canvas)] transition-colors hover:bg-[var(--accent)]"
-                  >
-                    {copiedId === 'header-master' ? (
-                      <>
-                        <Check className="h-3.5 w-3.5" />
-                        <span>完整模板已复制</span>
-                      </>
-                    ) : (
-                      <>
-                        <Copy className="h-3.5 w-3.5" />
-                        <span>复制完整工程 Prompt</span>
-                      </>
-                    )}
-                  </button>
-                )}
-              </div>
+              {doc.masterPrompt && (
+                <button
+                  onClick={() => copy(doc.masterPrompt!.content, 'header-master')}
+                  className="inline-flex items-center gap-1.5 bg-[var(--brand-blue)] px-4 py-2.5 text-xs font-semibold text-white transition-colors hover:bg-[var(--ink-base)]"
+                >
+                  {copiedId === 'header-master' ? (
+                    <>
+                      <Check className="h-3.5 w-3.5" />
+                      <span>完整模板已复制</span>
+                    </>
+                  ) : (
+                    <>
+                      <Copy className="h-3.5 w-3.5" />
+                      <span>一键复制完整工程模板</span>
+                    </>
+                  )}
+                </button>
+              )}
             </div>
           </div>
 
-          {/* Section Tabs */}
-          <div className="mt-8 flex flex-wrap items-center justify-between gap-4 border-t border-[var(--line-subtle)] pt-5">
+          {/* Crisp Section Switcher Tabs */}
+          <div className="mt-8 flex flex-wrap items-center justify-between gap-4 border-t border-[var(--blueprint-line)] pt-5">
             <div className="flex flex-wrap items-center gap-1.5">
               {isPromptDeck && (
                 <button
                   onClick={() => setActiveTab('cards')}
-                  className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-xs font-medium transition-all ${
+                  className={`inline-flex items-center gap-2 px-4 py-2 text-xs font-semibold transition-colors ${
                     activeTab === 'cards'
-                      ? 'bg-[var(--ink-primary)] text-[var(--bg-canvas)]'
-                      : 'border border-[var(--line-subtle)] bg-[var(--bg-surface)] text-[var(--ink-secondary)] hover:border-[var(--line-strong)]'
+                      ? 'bg-[var(--ink-base)] text-white'
+                      : 'border border-[var(--hairline-strong)] bg-white text-[var(--ink-secondary)] hover:border-[var(--ink-base)] hover:text-[var(--ink-base)]'
                   }`}
                 >
                   <Layers className="h-3.5 w-3.5" />
@@ -214,24 +202,38 @@ export function DocumentView({ doc, onBack, onFocusCard }: DocumentViewProps) {
               {doc.masterPrompt && (
                 <button
                   onClick={() => setActiveTab('master')}
-                  className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-xs font-medium transition-all ${
+                  className={`inline-flex items-center gap-2 px-4 py-2 text-xs font-semibold transition-colors ${
                     activeTab === 'master'
-                      ? 'bg-[var(--ink-primary)] text-[var(--bg-canvas)]'
-                      : 'border border-[var(--line-subtle)] bg-[var(--bg-surface)] text-[var(--ink-secondary)] hover:border-[var(--line-strong)]'
+                      ? 'bg-[var(--ink-base)] text-white'
+                      : 'border border-[var(--hairline-strong)] bg-white text-[var(--ink-secondary)] hover:border-[var(--ink-base)] hover:text-[var(--ink-base)]'
                   }`}
                 >
                   <Terminal className="h-3.5 w-3.5" />
-                  <span>02 / 完整工程模板</span>
+                  <span>02 / 完整工程蓝图</span>
+                </button>
+              )}
+
+              {hasInteractiveSpecimens && (
+                <button
+                  onClick={() => setActiveTab('specimen')}
+                  className={`inline-flex items-center gap-2 px-4 py-2 text-xs font-semibold transition-colors ${
+                    activeTab === 'specimen'
+                      ? 'bg-[var(--brand-blue)] text-white'
+                      : 'border border-[var(--blueprint-line-strong)] bg-white text-[var(--brand-blue)] hover:bg-[var(--brand-blue)] hover:text-white'
+                  }`}
+                >
+                  <Sliders className="h-3.5 w-3.5" />
+                  <span>03 / 交互色板 &amp; Alpha 实验室</span>
                 </button>
               )}
 
               {!isPromptDeck && (
                 <button
                   onClick={() => setActiveTab('article')}
-                  className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-xs font-medium transition-all ${
+                  className={`inline-flex items-center gap-2 px-4 py-2 text-xs font-semibold transition-colors ${
                     activeTab === 'article'
-                      ? 'bg-[var(--ink-primary)] text-[var(--bg-canvas)]'
-                      : 'border border-[var(--line-subtle)] bg-[var(--bg-surface)] text-[var(--ink-secondary)] hover:border-[var(--line-strong)]'
+                      ? 'bg-[var(--ink-base)] text-white'
+                      : 'border border-[var(--hairline-strong)] bg-white text-[var(--ink-secondary)]'
                   }`}
                 >
                   <BookOpen className="h-3.5 w-3.5" />
@@ -241,26 +243,25 @@ export function DocumentView({ doc, onBack, onFocusCard }: DocumentViewProps) {
 
               <button
                 onClick={() => setActiveTab('raw')}
-                className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-xs font-medium transition-all ${
+                className={`inline-flex items-center gap-2 px-4 py-2 text-xs font-semibold transition-colors ${
                   activeTab === 'raw'
-                    ? 'bg-[var(--ink-primary)] text-[var(--bg-canvas)]'
-                    : 'border border-[var(--line-subtle)] bg-[var(--bg-surface)] text-[var(--ink-secondary)] hover:border-[var(--line-strong)]'
+                    ? 'bg-[var(--ink-base)] text-white'
+                    : 'border border-[var(--hairline-strong)] bg-white text-[var(--ink-secondary)] hover:border-[var(--ink-base)] hover:text-[var(--ink-base)]'
                 }`}
               >
                 <FileCode2 className="h-3.5 w-3.5" />
-                <span>{isPromptDeck ? '03 / ' : ''}原始 Markdown</span>
+                <span>原始 Markdown</span>
               </button>
             </div>
 
-            {/* Layout Switcher when in Cards tab */}
             {activeTab === 'cards' && (
-              <div className="flex items-center rounded-full border border-[var(--line-subtle)] bg-[var(--bg-surface)] p-0.5">
+              <div className="flex border border-[var(--hairline-strong)] bg-white">
                 <button
                   onClick={() => setDeckLayout('grid')}
-                  className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs transition-colors ${
+                  className={`inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold transition-colors ${
                     deckLayout === 'grid'
-                      ? 'bg-[var(--ink-primary)] text-[var(--bg-canvas)]'
-                      : 'text-[var(--ink-muted)] hover:text-[var(--ink-primary)]'
+                      ? 'bg-[var(--ink-base)] text-white'
+                      : 'text-[var(--ink-secondary)] hover:text-[var(--ink-base)]'
                   }`}
                 >
                   <LayoutGrid className="h-3.5 w-3.5" />
@@ -268,14 +269,14 @@ export function DocumentView({ doc, onBack, onFocusCard }: DocumentViewProps) {
                 </button>
                 <button
                   onClick={() => setDeckLayout('filmstrip')}
-                  className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs transition-colors ${
+                  className={`inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold transition-colors ${
                     deckLayout === 'filmstrip'
-                      ? 'bg-[var(--ink-primary)] text-[var(--bg-canvas)]'
-                      : 'text-[var(--ink-muted)] hover:text-[var(--ink-primary)]'
+                      ? 'bg-[var(--ink-base)] text-white'
+                      : 'text-[var(--ink-secondary)] hover:text-[var(--ink-base)]'
                   }`}
                 >
                   <GalleryHorizontalEnd className="h-3.5 w-3.5" />
-                  <span>胶片横滑</span>
+                  <span>横向卷轴</span>
                 </button>
               </div>
             )}
@@ -283,250 +284,206 @@ export function DocumentView({ doc, onBack, onFocusCard }: DocumentViewProps) {
         </div>
       </section>
 
-      {/* Main Content Body */}
-      <section className="mx-auto max-w-[1320px] px-5 py-12 sm:px-8 sm:py-16">
-        {/* TAB 1: PROMPT CARDS DECK */}
-        {activeTab === 'cards' && isPromptDeck && (
-          <div className="space-y-14">
-            {deckLayout === 'grid' ? (
-              <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-                {doc.promptCards.map((card) => (
-                  <PromptCardItem
-                    key={card.id}
-                    card={card}
-                    copied={copiedId === card.id}
-                    onCopy={() => copy(card.rawPrompt, card.id)}
-                    onFocus={() => onFocusCard(card, doc.promptCards)}
-                  />
-                ))}
-              </div>
-            ) : (
-              /* Siena Film Foundation Inspired Horizontal Filmstrip */
-              <div>
-                <div className="mb-3 flex items-center justify-between font-mono-tech text-[11px] text-[var(--ink-muted)]">
-                  <span>FILMSTRIP MODE · 左右滑动浏览 STAGE 01 → 0{doc.promptCards.length}</span>
-                  <span>点击任意卡片右上角进入专注全屏</span>
-                </div>
-                <div className="flex snap-x snap-mandatory items-stretch gap-6 overflow-x-auto pb-6 pt-1">
+      {/* Main Content Body Framed by Blueprint Rails */}
+      <section className="bg-white">
+        <div className="mx-auto max-w-[1400px] border-x border-[var(--blueprint-line)] px-5 py-12 sm:px-8 sm:py-16">
+          {/* TAB 1: PROMPT CARDS */}
+          {activeTab === 'cards' && isPromptDeck && (
+            <div className="space-y-12">
+              {deckLayout === 'grid' ? (
+                <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
                   {doc.promptCards.map((card) => (
-                    <div
+                    <PromptCardItem
                       key={card.id}
-                      className="flex w-[88vw] shrink-0 snap-start sm:w-[420px]"
-                    >
-                      <div className="w-full">
-                        <PromptCardItem
-                          card={card}
-                          copied={copiedId === card.id}
-                          onCopy={() => copy(card.rawPrompt, card.id)}
-                          onFocus={() => onFocusCard(card, doc.promptCards)}
-                        />
-                      </div>
-                    </div>
+                      card={card}
+                      copied={copiedId === card.id}
+                      onCopy={() => copy(card.rawPrompt, card.id)}
+                      onFocus={() => onFocusCard(card, doc.promptCards)}
+                    />
                   ))}
                 </div>
-              </div>
-            )}
-
-            {/* Quick Bridge to Master Engineering Template */}
-            {doc.masterPrompt && (
-              <div className="rounded-2xl border border-[var(--line-strong)] bg-[var(--bg-specimen)] p-6 text-[var(--ink-on-specimen)] sm:p-8">
-                <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
-                  <div>
-                    <span className="font-mono-tech text-[10px] uppercase tracking-[0.16em] text-[var(--ink-on-specimen-muted)]">
-                      NEXT SECTION · FULL ENGINEERING BLUEPRINT
-                    </span>
-                    <h3 className="mt-1.5 font-serif-cn text-2xl font-semibold text-white">
-                      {doc.masterPrompt.heading.replace(/^二、\s*/, '')}
-                    </h3>
-                    <p className="mt-1 text-sm text-[var(--ink-on-specimen-muted)]">
-                      包含全局美术铁律与 Stage 1 → Stage 6 模块化实现指令，附带可勾选的阶段验证清单。
-                    </p>
+              ) : (
+                <div>
+                  <div className="mb-3 flex items-center justify-between font-mono-tech text-[11px] text-[var(--ink-muted)]">
+                    <span>HORIZONTAL DECK · STAGE 01 → 0{doc.promptCards.length}</span>
+                    <span>点击卡片右上角进入全屏专注模式</span>
                   </div>
-                  <div className="flex flex-wrap gap-2.5">
-                    <button
-                      onClick={() => setActiveTab('master')}
-                      className="rounded-full bg-white px-5 py-2.5 text-xs font-semibold text-[#171615] transition-colors hover:bg-[var(--accent)] hover:text-white"
-                    >
-                      展开工程蓝图视图 →
-                    </button>
+                  <div className="flex snap-x snap-mandatory items-stretch gap-6 overflow-x-auto pb-6 pt-1">
+                    {doc.promptCards.map((card) => (
+                      <div
+                        key={card.id}
+                        className="flex w-[88vw] shrink-0 snap-start sm:w-[420px]"
+                      >
+                        <div className="w-full">
+                          <PromptCardItem
+                            card={card}
+                            copied={copiedId === card.id}
+                            onCopy={() => copy(card.rawPrompt, card.id)}
+                            onFocus={() => onFocusCard(card, doc.promptCards)}
+                          />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Embedded Interactive Widgets directly below cards for immediate playfulness */}
+              {hasInteractiveSpecimens && (
+                <div className="border-t border-[var(--blueprint-line)] pt-12">
+                  <InteractiveSpecimenWidgets />
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* TAB 2: MASTER ENGINEERING BLUEPRINT */}
+          {activeTab === 'master' && doc.masterPrompt && (
+            <div className="grid grid-cols-1 gap-8 lg:grid-cols-12">
+              <div className="space-y-6 lg:col-span-8">
+                <div className="bg-[var(--bg-dark-band)] text-white">
+                  <div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/12 px-6 py-4 sm:px-8">
+                    <div className="flex items-center gap-2.5">
+                      <span className="h-2.5 w-2.5 bg-[var(--brand-blue)]" />
+                      <span className="font-mono-tech text-xs font-semibold uppercase tracking-[0.14em] text-[#3DD6F5]">
+                        MASTER ENGINEERING BLUEPRINT
+                      </span>
+                    </div>
                     <button
                       onClick={() =>
-                        copy(doc.masterPrompt!.content, 'bridge-master')
+                        copy(doc.masterPrompt!.content, 'specimen-copy')
                       }
-                      className="inline-flex items-center gap-1.5 rounded-full border border-white/20 px-4 py-2.5 text-xs font-medium text-white transition-colors hover:border-white/50"
+                      className="inline-flex items-center gap-1.5 bg-[var(--brand-blue)] px-4 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-white hover:text-[#1E1919]"
                     >
-                      {copiedId === 'bridge-master' ? (
+                      {copiedId === 'specimen-copy' ? (
                         <>
-                          <Check className="h-3.5 w-3.5 text-emerald-400" />
-                          <span>已复制</span>
+                          <Check className="h-3.5 w-3.5" />
+                          <span>完整模板已复制</span>
                         </>
                       ) : (
                         <>
                           <Copy className="h-3.5 w-3.5" />
-                          <span>直接复制</span>
+                          <span>一键复制完整模板</span>
                         </>
                       )}
                     </button>
                   </div>
-                </div>
-              </div>
-            )}
-          </div>
-        )}
 
-        {/* TAB 2: MASTER ENGINEERING PROMPT SPECIMEN */}
-        {activeTab === 'master' && doc.masterPrompt && (
-          <div className="grid grid-cols-1 gap-8 lg:grid-cols-12">
-            {/* Left 8 Cols: Structured Engineering Specimen */}
-            <div className="space-y-6 lg:col-span-8">
-              <div className="overflow-hidden rounded-2xl border border-[var(--line-strong)] bg-[var(--bg-specimen)] text-[var(--ink-on-specimen)] shadow-xl">
-                {/* Specimen Header */}
-                <div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/10 px-6 py-4 sm:px-8">
-                  <div className="flex items-center gap-2.5">
-                    <span className="h-2.5 w-2.5 rounded-full bg-[var(--accent)]" />
-                    <span className="font-mono-tech text-xs uppercase tracking-[0.14em] text-[var(--ink-on-specimen-muted)]">
-                      MASTER PROMPT SPECIMEN
-                    </span>
-                  </div>
-                  <button
-                    onClick={() =>
-                      copy(doc.masterPrompt!.content, 'specimen-copy')
-                    }
-                    className="inline-flex items-center gap-1.5 rounded-full bg-white px-4 py-1.5 text-xs font-semibold text-[#171615] transition-colors hover:bg-[var(--accent)] hover:text-white"
-                  >
-                    {copiedId === 'specimen-copy' ? (
-                      <>
-                        <Check className="h-3.5 w-3.5" />
-                        <span>完整 Prompt 已复制</span>
-                      </>
-                    ) : (
-                      <>
-                        <Copy className="h-3.5 w-3.5" />
-                        <span>一键复制完整模板</span>
-                      </>
+                  <div className="space-y-8 p-6 sm:p-8">
+                    {doc.masterPrompt.intro && (
+                      <p className="border-l-4 border-[#FAD24B] pl-4 font-display text-lg font-medium leading-relaxed text-white">
+                        {doc.masterPrompt.intro}
+                      </p>
                     )}
-                  </button>
-                </div>
 
-                {/* Structured Content */}
-                <div className="space-y-8 p-6 sm:p-8">
-                  {doc.masterPrompt.intro && (
-                    <p className="border-l-2 border-[var(--accent)] pl-4 font-serif-cn text-lg leading-relaxed text-white">
-                      {doc.masterPrompt.intro}
-                    </p>
-                  )}
-
-                  {/* Art Direction Iron Laws */}
-                  {doc.masterPrompt.rules.length > 0 && (
-                    <div>
-                      <h3 className="font-mono-tech text-[11px] uppercase tracking-[0.16em] text-[var(--accent)]">
-                        GLOBAL ART DIRECTION · 全局美术铁律
-                      </h3>
-                      <ul className="mt-3 space-y-2.5">
-                        {doc.masterPrompt.rules.map((rule, i) => (
-                          <li
-                            key={i}
-                            className="flex items-start gap-3 rounded-lg bg-white/[0.04] px-4 py-3 text-sm leading-relaxed text-[var(--ink-on-specimen)]/90"
-                          >
-                            <span className="mt-0.5 font-mono-tech text-xs text-[var(--accent)]">
-                              0{i + 1}
-                            </span>
-                            <span>{renderInlineCode(rule)}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
-
-                  {/* Modular Stages */}
-                  {doc.masterPrompt.stages.length > 0 && (
-                    <div>
-                      <h3 className="font-mono-tech text-[11px] uppercase tracking-[0.16em] text-[var(--ink-on-specimen-muted)]">
-                        MODULAR PIPELINE · 分阶段实现要求
-                      </h3>
-                      <div className="mt-4 space-y-3">
-                        {doc.masterPrompt.stages.map((stage) => {
-                          const done = completedStages.includes(stage.index);
-                          return (
-                            <div
-                              key={stage.index}
-                              className={`rounded-xl border p-5 transition-colors ${
-                                done
-                                  ? 'border-emerald-500/35 bg-emerald-500/[0.06]'
-                                  : 'border-white/10 bg-white/[0.025]'
-                              }`}
+                    {doc.masterPrompt.rules.length > 0 && (
+                      <div>
+                        <h3 className="font-mono-tech text-[11px] font-semibold uppercase tracking-[0.16em] text-[#FA551E]">
+                          GLOBAL ART DIRECTION · 全局美术铁律
+                        </h3>
+                        <ul className="mt-3 space-y-2.5">
+                          {doc.masterPrompt.rules.map((rule, i) => (
+                            <li
+                              key={i}
+                              className="flex items-start gap-3 bg-white/[0.05] px-4 py-3 text-sm leading-relaxed text-white/90"
                             >
-                              <div className="flex items-start justify-between gap-3">
-                                <div className="flex items-center gap-2.5">
-                                  <span className="font-mono-tech text-xs font-semibold text-[var(--accent)]">
-                                    STAGE 0{stage.index}
-                                  </span>
-                                  <h4 className="font-serif-cn text-base font-semibold text-white">
-                                    {stage.title}
-                                  </h4>
-                                </div>
-                                <button
-                                  onClick={() => toggleStage(stage.index)}
-                                  className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-white/15 px-2.5 py-1 font-mono-tech text-[10px] text-[var(--ink-on-specimen-muted)] transition-colors hover:border-white/40 hover:text-white"
-                                >
-                                  {done ? (
-                                    <>
-                                      <CheckCircle2 className="h-3.5 w-3.5 text-emerald-400" />
-                                      <span className="text-emerald-300">已完成</span>
-                                    </>
-                                  ) : (
-                                    <>
-                                      <Circle className="h-3.5 w-3.5" />
-                                      <span>标记完成</span>
-                                    </>
-                                  )}
-                                </button>
-                              </div>
-                              <ul className="mt-3 space-y-2 pl-1">
-                                {stage.details.map((detail, idx) => (
-                                  <li
-                                    key={idx}
-                                    className="flex items-start gap-2.5 text-[13.5px] leading-relaxed text-[var(--ink-on-specimen)]/80"
-                                  >
-                                    <span className="mt-2 h-1 w-1 shrink-0 rounded-full bg-white/40" />
-                                    <span>{renderInlineCode(detail)}</span>
-                                  </li>
-                                ))}
-                              </ul>
-                            </div>
-                          );
-                        })}
+                              <span className="mt-0.5 font-mono-tech text-xs font-bold text-[#FAD24B]">
+                                0{i + 1}
+                              </span>
+                              <span>{renderInlineCode(rule)}</span>
+                            </li>
+                          ))}
+                        </ul>
                       </div>
-                    </div>
-                  )}
+                    )}
 
-                  {doc.masterPrompt.outro && (
-                    <div className="rounded-lg border border-white/10 bg-white/[0.04] px-4 py-3 font-mono-tech text-xs leading-relaxed text-[var(--ink-on-specimen)]/90">
-                      {doc.masterPrompt.outro}
-                    </div>
-                  )}
+                    {doc.masterPrompt.stages.length > 0 && (
+                      <div>
+                        <h3 className="font-mono-tech text-[11px] font-semibold uppercase tracking-[0.16em] text-[#B4DC19]">
+                          MODULAR PIPELINE · STAGE 1 → 6 分阶段实现要求
+                        </h3>
+                        <div className="mt-4 space-y-3">
+                          {doc.masterPrompt.stages.map((stage) => {
+                            const done = completedStages.includes(stage.index);
+                            return (
+                              <div
+                                key={stage.index}
+                                className={`border p-5 transition-colors ${
+                                  done
+                                    ? 'border-[#B4DC19]/60 bg-[#B4DC19]/10'
+                                    : 'border-white/12 bg-white/[0.03]'
+                                }`}
+                              >
+                                <div className="flex items-start justify-between gap-3">
+                                  <div className="flex items-center gap-2.5">
+                                    <span className="bg-[var(--brand-blue)] px-2 py-0.5 font-mono-tech text-[10px] font-bold text-white">
+                                      STAGE 0{stage.index}
+                                    </span>
+                                    <h4 className="font-display text-base font-bold text-white">
+                                      {stage.title}
+                                    </h4>
+                                  </div>
+                                  <button
+                                    onClick={() => toggleStage(stage.index)}
+                                    className="inline-flex shrink-0 items-center gap-1.5 border border-white/20 px-2.5 py-1 font-mono-tech text-[10px] text-white/75 transition-colors hover:border-white hover:text-white"
+                                  >
+                                    {done ? (
+                                      <>
+                                        <CheckCircle2 className="h-3.5 w-3.5 text-[#B4DC19]" />
+                                        <span className="text-[#B4DC19]">已完成</span>
+                                      </>
+                                    ) : (
+                                      <>
+                                        <Circle className="h-3.5 w-3.5" />
+                                        <span>标记完成</span>
+                                      </>
+                                    )}
+                                  </button>
+                                </div>
+                                <ul className="mt-3 space-y-2 pl-1">
+                                  {stage.details.map((detail, idx) => (
+                                    <li
+                                      key={idx}
+                                      className="flex items-start gap-2.5 text-[13.5px] leading-relaxed text-white/80"
+                                    >
+                                      <span className="mt-2 h-1.5 w-1.5 shrink-0 bg-[#3DD6F5]" />
+                                      <span>{renderInlineCode(detail)}</span>
+                                    </li>
+                                  ))}
+                                </ul>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    )}
+
+                    {doc.masterPrompt.outro && (
+                      <div className="border border-white/15 bg-white/[0.05] px-4 py-3 font-mono-tech text-xs leading-relaxed text-white/90">
+                        {doc.masterPrompt.outro}
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
-            </div>
 
-            {/* Right 4 Cols: Sticky Progress & Quick Copy */}
-            <aside className="lg:col-span-4">
-              <div className="sticky top-24 space-y-5">
-                <div className="rounded-2xl border border-[var(--line-subtle)] bg-[var(--bg-surface)] p-6">
-                  <div className="flex items-center justify-between border-b border-[var(--line-subtle)] pb-3">
-                    <span className="font-mono-tech text-[10px] uppercase tracking-[0.14em] text-[var(--ink-muted)]">
+              {/* Sticky Progress Rail */}
+              <aside className="lg:col-span-4">
+                <div className="sticky top-20 border border-[var(--blueprint-line-strong)] bg-[var(--bg-subtle)] p-6">
+                  <div className="flex items-center justify-between border-b border-[var(--blueprint-line)] pb-3">
+                    <span className="font-mono-tech text-[10px] font-bold uppercase tracking-[0.14em] text-[var(--brand-blue)]">
                       IMPLEMENTATION TRACKER
                     </span>
-                    <span className="font-mono-tech text-xs font-semibold text-[var(--accent)]">
+                    <span className="font-mono-tech text-xs font-bold text-[var(--ink-base)]">
                       {completedStages.length} / {doc.masterPrompt.stages.length}
                     </span>
                   </div>
                   <p className="mt-3 text-xs leading-relaxed text-[var(--ink-secondary)]">
-                    复现本工程 Prompt 时，可逐阶段勾选已验证完成的模块，进度将保存在本地浏览器。
+                    分阶段用 AI 生成并验证代码时，勾选已完成阶段，进度将保存在本地浏览器。
                   </p>
-                  <div className="mt-4 h-1.5 w-full overflow-hidden rounded-full bg-[var(--bg-surface-alt)]">
+                  <div className="mt-4 h-2 w-full bg-white">
                     <div
-                      className="h-full rounded-full bg-[var(--accent)] transition-all duration-300"
+                      className="h-full bg-[var(--brand-blue)] transition-all duration-300"
                       style={{
                         width: `${
                           doc.masterPrompt.stages.length > 0
@@ -545,10 +502,10 @@ export function DocumentView({ doc, onBack, onFocusCard }: DocumentViewProps) {
                         <button
                           key={s.index}
                           onClick={() => toggleStage(s.index)}
-                          className="flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2 text-left text-xs transition-colors hover:bg-[var(--bg-surface-alt)]"
+                          className="flex w-full items-center gap-2.5 px-2.5 py-2 text-left text-xs transition-colors hover:bg-white"
                         >
                           {done ? (
-                            <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-600" />
+                            <CheckCircle2 className="h-4 w-4 shrink-0 text-[var(--brand-blue)]" />
                           ) : (
                             <Circle className="h-4 w-4 shrink-0 text-[var(--ink-muted)]" />
                           )}
@@ -556,7 +513,7 @@ export function DocumentView({ doc, onBack, onFocusCard }: DocumentViewProps) {
                             className={
                               done
                                 ? 'line-through text-[var(--ink-muted)]'
-                                : 'text-[var(--ink-primary)]'
+                                : 'font-medium text-[var(--ink-base)]'
                             }
                           >
                             Stage {s.index} · {s.title.replace(/（Stage \d+）/, '')}
@@ -566,72 +523,77 @@ export function DocumentView({ doc, onBack, onFocusCard }: DocumentViewProps) {
                     })}
                   </div>
                 </div>
-              </div>
-            </aside>
-          </div>
-        )}
-
-        {/* TAB 3: GENERIC EDITORIAL MARKDOWN READER (for future notes/papers) */}
-        {activeTab === 'article' && (
-          <div className="grid grid-cols-1 gap-10 lg:grid-cols-12">
-            <article
-              className="editorial-prose lg:col-span-8"
-              dangerouslySetInnerHTML={{ __html: doc.htmlContent }}
-            />
-            {doc.toc.length > 0 && (
-              <aside className="hidden lg:col-span-4 lg:block">
-                <div className="sticky top-24 rounded-2xl border border-[var(--line-subtle)] bg-[var(--bg-surface)] p-6">
-                  <div className="border-b border-[var(--line-subtle)] pb-3 font-mono-tech text-[10px] uppercase tracking-[0.14em] text-[var(--ink-muted)]">
-                    TABLE OF CONTENTS · 目录大纲
-                  </div>
-                  <nav className="mt-4 space-y-2">
-                    {doc.toc.map((item) => (
-                      <a
-                        key={item.id}
-                        href={`#${item.id}`}
-                        className={`block text-xs leading-relaxed text-[var(--ink-secondary)] transition-colors hover:text-[var(--accent)] ${
-                          item.level === 3 ? 'pl-4' : 'font-medium'
-                        }`}
-                      >
-                        {item.text}
-                      </a>
-                    ))}
-                  </nav>
-                </div>
               </aside>
-            )}
-          </div>
-        )}
-
-        {/* TAB 4: RAW MARKDOWN SOURCE */}
-        {activeTab === 'raw' && (
-          <div className="overflow-hidden rounded-2xl border border-[var(--line-strong)] bg-[var(--bg-specimen)] text-[var(--ink-on-specimen)]">
-            <div className="flex items-center justify-between border-b border-white/10 px-6 py-3.5">
-              <span className="font-mono-tech text-xs text-[var(--ink-on-specimen-muted)]">
-                {doc.filePath} · {doc.charCount} chars
-              </span>
-              <button
-                onClick={() => copy(doc.bodyMarkdown, 'raw-md-copy')}
-                className="inline-flex items-center gap-1.5 rounded-full bg-white/10 px-3.5 py-1.5 text-xs text-white transition-colors hover:bg-white/20"
-              >
-                {copiedId === 'raw-md-copy' ? (
-                  <>
-                    <Check className="h-3.5 w-3.5 text-emerald-400" />
-                    <span>已复制全文 Markdown</span>
-                  </>
-                ) : (
-                  <>
-                    <Copy className="h-3.5 w-3.5" />
-                    <span>复制原文</span>
-                  </>
-                )}
-              </button>
             </div>
-            <pre className="overflow-x-auto p-6 font-mono-tech text-xs leading-7 text-[var(--ink-on-specimen)]/90 sm:p-8">
-              {doc.bodyMarkdown}
-            </pre>
-          </div>
-        )}
+          )}
+
+          {/* TAB 3: DEDICATED INTERACTIVE SPECIMEN LAB */}
+          {activeTab === 'specimen' && hasInteractiveSpecimens && (
+            <InteractiveSpecimenWidgets />
+          )}
+
+          {/* TAB 4: REGULAR MARKDOWN READER */}
+          {activeTab === 'article' && (
+            <div className="grid grid-cols-1 gap-10 lg:grid-cols-12">
+              <article
+                className="swiss-prose lg:col-span-8"
+                dangerouslySetInnerHTML={{ __html: doc.htmlContent }}
+              />
+              {doc.toc.length > 0 && (
+                <aside className="hidden lg:col-span-4 lg:block">
+                  <div className="sticky top-20 border border-[var(--blueprint-line-strong)] bg-[var(--bg-subtle)] p-6">
+                    <div className="border-b border-[var(--blueprint-line)] pb-3 font-mono-tech text-[10px] font-bold uppercase tracking-[0.14em] text-[var(--brand-blue)]">
+                      TABLE OF CONTENTS · 目录大纲
+                    </div>
+                    <nav className="mt-4 space-y-2">
+                      {doc.toc.map((item) => (
+                        <a
+                          key={item.id}
+                          href={`#${item.id}`}
+                          className={`block text-xs leading-relaxed text-[var(--ink-secondary)] transition-colors hover:text-[var(--brand-blue)] ${
+                            item.level === 3 ? 'pl-4' : 'font-semibold'
+                          }`}
+                        >
+                          {item.text}
+                        </a>
+                      ))}
+                    </nav>
+                  </div>
+                </aside>
+              )}
+            </div>
+          )}
+
+          {/* TAB 5: RAW MARKDOWN */}
+          {activeTab === 'raw' && (
+            <div className="bg-[var(--bg-dark-band)] text-white">
+              <div className="flex items-center justify-between border-b border-white/12 px-6 py-3.5">
+                <span className="font-mono-tech text-xs text-white/60">
+                  {doc.filePath} · {doc.charCount} chars
+                </span>
+                <button
+                  onClick={() => copy(doc.bodyMarkdown, 'raw-md-copy')}
+                  className="inline-flex items-center gap-1.5 bg-[var(--brand-blue)] px-3.5 py-1.5 text-xs font-semibold text-white hover:bg-white hover:text-[#1E1919]"
+                >
+                  {copiedId === 'raw-md-copy' ? (
+                    <>
+                      <Check className="h-3.5 w-3.5" />
+                      <span>已复制原文</span>
+                    </>
+                  ) : (
+                    <>
+                      <Copy className="h-3.5 w-3.5" />
+                      <span>复制 Markdown</span>
+                    </>
+                  )}
+                </button>
+              </div>
+              <pre className="overflow-x-auto p-6 font-mono-tech text-xs leading-7 text-white/90 sm:p-8">
+                {doc.bodyMarkdown}
+              </pre>
+            </div>
+          )}
+        </div>
       </section>
     </div>
   );
