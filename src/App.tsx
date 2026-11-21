@@ -18,7 +18,7 @@ import {
 interface RouteState {
   view: NavRoute;
   slug?: string;
-  docTab?: 'cards' | 'master';
+  docTab?: 'cards' | 'master' | 'source';
 }
 
 function parseHash(): RouteState {
@@ -32,7 +32,14 @@ function parseHash(): RouteState {
     return {
       view: 'doc',
       slug: slugPart,
-      docTab: tabParam === 'master' ? 'master' : tabParam === 'cards' ? 'cards' : undefined,
+      docTab:
+        tabParam === 'master'
+          ? 'master'
+          : tabParam === 'source'
+            ? 'source'
+            : tabParam === 'cards'
+              ? 'cards'
+              : undefined,
     };
   }
   return { view: 'home' };
@@ -88,7 +95,7 @@ export function App() {
   );
 
   const handleOpenDoc = useCallback(
-    (slug: string, tab?: 'cards' | 'master') => {
+    (slug: string, tab?: 'cards' | 'master' | 'source') => {
       navigate(tab ? `/doc/${slug}?tab=${tab}` : `/doc/${slug}`);
     },
     [navigate]

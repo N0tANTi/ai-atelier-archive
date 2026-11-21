@@ -1,4 +1,4 @@
-import { Copy, Check, Maximize2 } from 'lucide-react';
+import { Copy, Check, Maximize2, FileCode2, ArrowUpRight } from 'lucide-react';
 import type { PromptCard } from '../lib/content';
 
 interface PromptCardItemProps {
@@ -94,13 +94,29 @@ export function PromptCardItem({
       </div>
 
       {/* Bottom Action Hairline Rail */}
-      <div className="mt-auto flex items-center justify-between border-t border-[var(--hairline)] bg-[var(--bg-subtle)] px-5 py-3">
-        <button
-          onClick={onFocus}
-          className="font-mono-tech text-[11px] font-medium text-[var(--ink-secondary)] transition-colors hover:text-[var(--brand-blue)]"
-        >
-          INSPECT →
-        </button>
+      <div className="mt-auto flex flex-wrap items-center justify-between gap-2 border-t border-[var(--hairline)] bg-[var(--bg-subtle)] px-5 py-3">
+        <div className="flex items-center gap-3">
+          <button
+            onClick={onFocus}
+            className="font-mono-tech text-[11px] font-medium text-[var(--ink-secondary)] transition-colors hover:text-[var(--brand-blue)]"
+          >
+            INSPECT →
+          </button>
+
+          {card.repoUrl && card.sourceFiles && card.sourceFiles.length > 0 && (
+            <a
+              href={`${card.repoUrl}/blob/main/${card.sourceFiles[0]}`}
+              target="_blank"
+              rel="noreferrer"
+              title={`在 GitHub 查看对应源码：${card.sourceFiles.join(', ')}`}
+              className="inline-flex items-center gap-1 font-mono-tech text-[10px] font-semibold text-[var(--brand-blue)] transition-colors hover:text-[var(--ink-base)]"
+            >
+              <FileCode2 className="h-3 w-3" />
+              <span>{card.sourceFiles[0].split('/').pop()}</span>
+              <ArrowUpRight className="h-2.5 w-2.5" />
+            </a>
+          )}
+        </div>
 
         <button
           onClick={onCopy}

@@ -13,6 +13,17 @@ tags:
   - "Kuwahara"
 summary: "一套完整的风格化 3D 场景分阶段工程 Prompt：从无噪点地形笔触、4 圈 LOD 风吹草海、离线烘焙天幕，到球团树冠、赛璐璐主角 Alpha 编码与分层 Kuwahara 暖墨后处理。"
 featured: true
+repo: "https://github.com/N0tANTi/painted-valley-sunset"
+demo: "https://n0tanti.github.io/painted-valley-sunset/"
+preview: "./previews/painted-valley-sunset.jpg"
+license: "MIT / CC0 1.0"
+sourceMap:
+  - "Stage 1|地形骨架、山谷盆地与 512px 无缝笔触贴图|src/valley/world.js, src/valley/strokes.js, src/valley/floor.js"
+  - "Stage 2|4 圈 LOD 实例化草海与滚动风场|src/lib/blades.js, src/lib/ground.js, src/lib/flowers.js"
+  - "Stage 3|离线烘焙天空、体积积雨云与 360° 分面远山|src/valley/sky.js, src/valley/clouds.js, src/valley/backdrop.js, src/valley/horizon.js"
+  - "Stage 4|球团树冠、树荫阴影图与程序化远景村庄|src/valley/trees.js, src/valley/farwoods.js, src/valley/village.js"
+  - "Stage 5|赛璐璐主角、实时布料披风与 Alpha 通道编码|src/valley/wanderer.js, src/figure/cloak.js, src/figure/man.js"
+  - "Stage 6|分层 Kuwahara、深度暖墨描边与 4 套时间色板|src/lib/frame.js, src/lib/glsl.js, src/valley/main.js"
 palette:
   - "#5A7D5E"
   - "#3A6B8C"

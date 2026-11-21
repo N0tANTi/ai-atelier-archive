@@ -7,6 +7,7 @@ import {
   Copy,
   Check,
   Plus,
+  FolderGit2,
 } from 'lucide-react';
 import {
   archiveDocs,
@@ -19,7 +20,7 @@ import { BlueprintIntroStage } from './BlueprintIntroStage';
 import { PromptCardItem } from './PromptCardItem';
 
 interface HomeViewProps {
-  onOpenDoc: (slug: string, tab?: 'cards' | 'master') => void;
+  onOpenDoc: (slug: string, tab?: 'cards' | 'master' | 'source') => void;
   onOpenCards: () => void;
   onOpenGuide: () => void;
   onOpenSearch: () => void;
@@ -111,6 +112,16 @@ export function HomeView({
                     <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
                   </button>
 
+                  {featuredDoc.repo && (
+                    <button
+                      onClick={() => onOpenDoc(featuredDoc.slug, 'source')}
+                      className="inline-flex items-center gap-2 bg-[#FA551E] px-5 py-3 text-sm font-semibold text-white transition-colors hover:bg-white hover:text-[#1E1919]"
+                    >
+                      <FolderGit2 className="h-4 w-4" />
+                      <span>源码仓库 &amp; 实时 3D 预览</span>
+                    </button>
+                  )}
+
                   {featuredDoc.masterPrompt && (
                     <button
                       onClick={() =>
@@ -126,7 +137,7 @@ export function HomeView({
                       ) : (
                         <>
                           <Copy className="h-4 w-4" />
-                          <span>一键复制完整工程模板</span>
+                          <span>复制完整工程模板</span>
                         </>
                       )}
                     </button>
@@ -134,41 +145,65 @@ export function HomeView({
                 </div>
               </div>
 
-              {/* Right Column: Interactive Stage Quick Jump List */}
-              <div className="border border-white/15 bg-white/[0.03] p-6 lg:col-span-5">
-                <div className="flex items-center justify-between border-b border-white/12 pb-3">
-                  <span className="font-mono-tech text-[10px] font-semibold uppercase tracking-[0.16em] text-[#3DD6F5]">
-                    STAGE 01 → 06 QUICK INSPECTOR
-                  </span>
-                  <span className="font-mono-tech text-[10px] text-white/50">
-                    CLICK TO PREVIEW
-                  </span>
-                </div>
-
-                <div className="mt-2 divide-y divide-white/10">
-                  {featuredDoc.promptCards.map((card) => (
-                    <button
-                      key={card.id}
-                      onClick={() => onFocusCard(card, featuredDoc.promptCards)}
-                      className="group flex w-full items-center justify-between py-3 text-left transition-colors hover:text-[#FAD24B]"
-                    >
-                      <div className="flex items-center gap-3">
-                        <span
-                          className="h-2.5 w-2.5 shrink-0"
-                          style={{ backgroundColor: card.accentHex }}
-                        />
-                        <span className="font-mono-tech text-xs text-white/50">
-                          0{card.number}
-                        </span>
-                        <span className="text-sm font-medium text-white/90 group-hover:text-white">
-                          {card.title}
-                        </span>
-                      </div>
-                      <span className="font-mono-tech text-[10px] text-white/45 group-hover:text-[#FAD24B]">
-                        {card.stage} →
+              {/* Right Column: Real Rendered Sunset Preview + Interactive Stage Quick Jump List */}
+              <div className="border border-white/15 bg-white/[0.03] lg:col-span-5">
+                {featuredDoc.preview && (
+                  <button
+                    onClick={() => onOpenDoc(featuredDoc.slug, 'source')}
+                    className="group relative block h-44 w-full overflow-hidden border-b border-white/12 text-left"
+                  >
+                    <img
+                      src={featuredDoc.preview}
+                      alt={featuredDoc.title}
+                      className="h-full w-full object-cover transition-transform duration-500 ease-dropbox group-hover:scale-105"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-transparent to-transparent" />
+                    <div className="absolute bottom-3 left-4 right-4 flex items-center justify-between">
+                      <span className="font-mono-tech text-[10px] font-semibold uppercase tracking-[0.14em] text-[#FAD24B]">
+                        LIVE THREE.JS SCENE · OPEN SOURCE
                       </span>
-                    </button>
-                  ))}
+                      <span className="bg-[var(--brand-blue)] px-2 py-0.5 font-mono-tech text-[10px] font-bold text-white">
+                        RUN 3D →
+                      </span>
+                    </div>
+                  </button>
+                )}
+
+                <div className="p-6">
+                  <div className="flex items-center justify-between border-b border-white/12 pb-3">
+                    <span className="font-mono-tech text-[10px] font-semibold uppercase tracking-[0.16em] text-[#3DD6F5]">
+                      STAGE 01 → 06 QUICK INSPECTOR
+                    </span>
+                    <span className="font-mono-tech text-[10px] text-white/50">
+                      CLICK TO PREVIEW
+                    </span>
+                  </div>
+
+                  <div className="mt-2 divide-y divide-white/10">
+                    {featuredDoc.promptCards.map((card) => (
+                      <button
+                        key={card.id}
+                        onClick={() => onFocusCard(card, featuredDoc.promptCards)}
+                        className="group flex w-full items-center justify-between py-2.5 text-left transition-colors hover:text-[#FAD24B]"
+                      >
+                        <div className="flex items-center gap-3">
+                          <span
+                            className="h-2.5 w-2.5 shrink-0"
+                            style={{ backgroundColor: card.accentHex }}
+                          />
+                          <span className="font-mono-tech text-xs text-white/50">
+                            0{card.number}
+                          </span>
+                          <span className="text-sm font-medium text-white/90 group-hover:text-white">
+                            {card.title}
+                          </span>
+                        </div>
+                        <span className="font-mono-tech text-[10px] text-white/45 group-hover:text-[#FAD24B]">
+                          {card.stage} →
+                        </span>
+                      </button>
+                    ))}
+                  </div>
                 </div>
               </div>
             </div>

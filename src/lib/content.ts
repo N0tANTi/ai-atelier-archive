@@ -3,6 +3,13 @@ import { siteConfig } from '../site.config';
 
 export type DocType = 'prompt-deck' | 'note' | 'paper' | 'workflow';
 
+export interface SourceMapEntry {
+  stage: string;
+  stageNumber: number;
+  label: string;
+  files: string[];
+}
+
 export interface PromptCard {
   id: string;
   docSlug: string;
@@ -16,6 +23,8 @@ export interface PromptCard {
   rawPrompt: string;
   accentHex: string;
   tags: string[];
+  repoUrl?: string;
+  sourceFiles?: string[];
 }
 
 export interface MasterPromptSection {
@@ -51,6 +60,11 @@ export interface ArchiveDoc {
   summary: string;
   featured: boolean;
   palette: string[];
+  repo?: string;
+  demo?: string;
+  preview?: string;
+  license?: string;
+  sourceMap: SourceMapEntry[];
   readingMinutes: number;
   charCount: number;
   rawMarkdown: string;
@@ -343,6 +357,26 @@ const rawFiles = import.meta.glob('/content/**/*.md', {
   eager: true,
 }) as Record<string, string>;
 
+function parseSourceMap(rawList: unknown): SourceMapEntry[] {
+  if (!Array.isArray(rawList)) return [];
+  return rawList
+    .map((item, idx) => {
+      const str = String(item);
+      const parts = str.split('|').map((s) => s.trim());
+      if (parts.length < 3) return null;
+      const stage = parts[0];
+      const numMatch = stage.match(/(\d+)/);
+      const stageNumber = numMatch ? parseInt(numMatch[1], 10) : idx + 1;
+      const label = parts[1];
+      const files = parts[2]
+        .split(',')
+        .map((f) => f.trim())
+        .filter(Boolean);
+      return { stage, stageNumber, label, files };
+    })
+    .filter((entry): entry is SourceMapEntry => entry !== null);
+}
+
 function loadArchive(): ArchiveDoc[] {
   const docs: ArchiveDoc[] = Object.entries(rawFiles).map(([filePath, raw], idx) => {
     const { data, body } = parseFrontmatter(raw);
@@ -354,7 +388,20 @@ function loadArchive(): ArchiveDoc[] {
     const title = (data.title as string) || fallbackTitle;
     const slug = createDocSlug(filePath);
     const tags = Array.isArray(data.tags) ? (data.tags as string[]) : [];
-    const promptCards = extractPromptCards(body, slug, title, tags);
+    const repo = typeof data.repo === 'string' ? data.repo : undefined;
+    const demo = typeof data.demo === 'string' ? data.demo : undefined;
+    const preview = typeof data.preview === 'string' ? data.preview : undefined;
+    const license = typeof data.license === 'string' ? data.license : undefined;
+    const sourceMap = parseSourceMap(data.sourceMap);
+
+    const promptCards = extractPromptCards(body, slug, title, tags).map((card) => {
+      const matched = sourceMap.find((entry) => entry.stageNumber === card.number);
+      return {
+        ...card,
+        repoUrl: repo,
+        sourceFiles: matched?.files,
+      };
+    });
     const masterPrompt = extractMasterPrompt(body);
 
     const inferredType: DocType =
@@ -400,6 +447,11 @@ function loadArchive(): ArchiveDoc[] {
       summary: (data.summary as string) || firstParagraph.slice(0, 120),
       featured: Boolean(data.featured),
       palette,
+      repo,
+      demo,
+      preview,
+      license,
+      sourceMap,
       readingMinutes,
       charCount,
       rawMarkdown: raw,

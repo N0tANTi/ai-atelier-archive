@@ -3,7 +3,7 @@ import { archiveDocs, allPromptCards } from '../lib/content';
 
 export type MosaicAction =
   | { type: 'cards' }
-  | { type: 'doc'; slug: string; tab?: 'cards' | 'master' }
+  | { type: 'doc'; slug: string; tab?: 'cards' | 'master' | 'source' }
   | { type: 'category'; category: string }
   | { type: 'guide' }
   | { type: 'search' }
@@ -349,11 +349,11 @@ export function PinwheelMosaic({
         </div>
       </button>
 
-      {/* TILE 7: Interactive Master Engineering Blueprint (Deep Burgundy/Maroon - Imagery Homage) */}
+      {/* TILE 7: Interactive 3D Demo & Linked GitHub Source (Deep Burgundy/Maroon - Imagery Homage) */}
       <button
         onClick={() =>
           featuredDoc
-            ? onAction({ type: 'doc', slug: featuredDoc.slug, tab: 'master' })
+            ? onAction({ type: 'doc', slug: featuredDoc.slug, tab: 'source' })
             : onAction({ type: 'cards' })
         }
         className="mosaic-tile dm-tile dm-7 group flex flex-col justify-between p-5 text-left sm:p-6"
@@ -362,10 +362,10 @@ export function PinwheelMosaic({
         <div className="flex items-start justify-between gap-2">
           <div>
             <span className="tile-label block font-display text-lg font-semibold leading-tight text-white sm:text-xl">
-              工程蓝图与交互色板
+              源码仓库与实时 3D 场景
             </span>
             <span className="tile-meta-muted mt-0.5 block font-mono-tech text-[10px] uppercase tracking-[0.12em] text-[#FF9EC7]">
-              SPECIMEN LAB · 4 TIME-OF-DAY PALETTES &amp; ALPHA MAP
+              GITHUB SOURCE · LIVE THREE.JS WEBGL2 DEMO
             </span>
           </div>
           <span className="tile-meta shrink-0 whitespace-nowrap rounded bg-white/15 px-2 py-0.5 font-mono-tech text-[10px] font-semibold text-white">

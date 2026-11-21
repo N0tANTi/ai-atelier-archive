@@ -12,20 +12,23 @@ import {
   Circle,
   BookOpen,
   Sliders,
+  FolderGit2,
+  ArrowUpRight,
 } from 'lucide-react';
 import type { ArchiveDoc, PromptCard } from '../lib/content';
 import { useCopy } from '../lib/useCopy';
 import { PromptCardItem } from './PromptCardItem';
 import { InteractiveSpecimenWidgets } from './InteractiveSpecimenWidgets';
+import { SourceCodePanel } from './SourceCodePanel';
 
 interface DocumentViewProps {
   doc: ArchiveDoc;
-  initialTab?: 'cards' | 'master';
+  initialTab?: 'cards' | 'master' | 'source';
   onBack: () => void;
   onFocusCard: (card: PromptCard, pool: PromptCard[]) => void;
 }
 
-type DocTab = 'cards' | 'master' | 'specimen' | 'article' | 'raw';
+type DocTab = 'cards' | 'master' | 'specimen' | 'source' | 'article' | 'raw';
 
 function renderInlineCode(text: string) {
   const parts = text.split(/(`[^`]+`)/g);
@@ -140,8 +143,21 @@ export function DocumentView({
               </p>
             </div>
 
-            {/* Bulk Copy Actions */}
+            {/* Bulk Copy & Repo Actions */}
             <div className="flex flex-wrap gap-2.5 lg:col-span-4 lg:justify-end">
+              {doc.repo && (
+                <a
+                  href={doc.repo}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex items-center gap-1.5 border border-[var(--blueprint-line-strong)] bg-white px-4 py-2.5 text-xs font-semibold text-[var(--brand-blue)] transition-colors hover:bg-[var(--brand-blue)] hover:text-white"
+                >
+                  <FolderGit2 className="h-3.5 w-3.5" />
+                  <span>GitHub 源码</span>
+                  <ArrowUpRight className="h-3.5 w-3.5" />
+                </a>
+              )}
+
               {isPromptDeck && (
                 <button
                   onClick={() => copy(allCardsCombined, 'copy-all-cards')}
@@ -223,7 +239,21 @@ export function DocumentView({
                   }`}
                 >
                   <Sliders className="h-3.5 w-3.5" />
-                  <span>03 / 交互色板 &amp; Alpha 实验室</span>
+                  <span>03 / 交互色板 &amp; Alpha</span>
+                </button>
+              )}
+
+              {(doc.repo || doc.demo) && (
+                <button
+                  onClick={() => setActiveTab('source')}
+                  className={`inline-flex items-center gap-2 px-4 py-2 text-xs font-semibold transition-colors ${
+                    activeTab === 'source'
+                      ? 'bg-[#FA551E] text-white'
+                      : 'border border-[#FA551E]/40 bg-white text-[#FA551E] hover:bg-[#FA551E] hover:text-white'
+                  }`}
+                >
+                  <FolderGit2 className="h-3.5 w-3.5" />
+                  <span>04 / 源码仓库 &amp; 实时 3D</span>
                 </button>
               )}
 
@@ -530,6 +560,11 @@ export function DocumentView({
           {/* TAB 3: DEDICATED INTERACTIVE SPECIMEN LAB */}
           {activeTab === 'specimen' && hasInteractiveSpecimens && (
             <InteractiveSpecimenWidgets />
+          )}
+
+          {/* TAB 4: LINKED GITHUB SOURCE REPO & LIVE 3D DEMO */}
+          {activeTab === 'source' && (doc.repo || doc.demo) && (
+            <SourceCodePanel doc={doc} />
           )}
 
           {/* TAB 4: REGULAR MARKDOWN READER */}
