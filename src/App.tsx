@@ -42,6 +42,7 @@ export function App() {
   const [route, setRoute] = useState<RouteState>(() => parseHash());
   const [searchOpen, setSearchOpen] = useState(false);
   const [mosaicOpen, setMosaicOpen] = useState(false);
+  const [introProgress, setIntroProgress] = useState(0);
   const [focusPool, setFocusPool] = useState<PromptCard[]>(allPromptCards);
   const [focusIndex, setFocusIndex] = useState<number | null>(null);
 
@@ -125,14 +126,29 @@ export function App() {
           ? '归档规范'
           : activeDoc?.title ?? '档案详情';
 
+  const isHome = route.view === 'home';
+  const showHomeTopNav = introProgress >= 0.98;
+
   return (
     <div className="flex min-h-screen flex-col bg-white">
-      <Navbar
-        activeRoute={route.view}
-        onNavigate={handleNav}
-        onOpenSearch={() => setSearchOpen(true)}
-        onOpenMosaic={() => setMosaicOpen((prev) => !prev)}
-      />
+      <div
+        className={
+          isHome
+            ? `sticky top-0 z-30 min-[900px]:fixed min-[900px]:left-0 min-[900px]:right-0 min-[900px]:top-0 transition-all duration-300 ease-dropbox ${
+                showHomeTopNav
+                  ? 'min-[900px]:translate-y-0 min-[900px]:opacity-100'
+                  : 'min-[900px]:pointer-events-none min-[900px]:-translate-y-full min-[900px]:opacity-0'
+              }`
+            : 'sticky top-0 z-30'
+        }
+      >
+        <Navbar
+          activeRoute={route.view}
+          onNavigate={handleNav}
+          onOpenSearch={() => setSearchOpen(true)}
+          onOpenMosaic={() => setMosaicOpen((prev) => !prev)}
+        />
+      </div>
 
       <main className="flex-1">
         {route.view === 'home' && (
@@ -142,6 +158,7 @@ export function App() {
             onOpenGuide={() => handleNav('guide')}
             onOpenSearch={() => setSearchOpen(true)}
             onFocusCard={handleFocusCard}
+            onIntroProgress={setIntroProgress}
           />
         )}
 

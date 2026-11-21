@@ -10,7 +10,7 @@ export type MosaicAction =
   | { type: 'close' };
 
 interface PinwheelMosaicProps {
-  variant?: 'hero' | 'overlay';
+  variant?: 'hero' | 'stage' | 'overlay';
   onAction: (action: MosaicAction) => void;
 }
 
@@ -21,14 +21,14 @@ export function PinwheelMosaic({
   const featuredDoc = archiveDocs[0];
   const isOverlay = variant === 'overlay';
 
+  const containerClass = isOverlay
+    ? 'dropbox-mosaic-overlay mx-auto w-full max-w-[960px]'
+    : variant === 'stage'
+      ? 'dropbox-mosaic-stage mx-auto w-full max-w-[1020px]'
+      : 'dropbox-mosaic mx-auto w-full max-w-[1060px]';
+
   return (
-    <div
-      className={
-        isOverlay
-          ? 'dropbox-mosaic-overlay mx-auto w-full max-w-[960px]'
-          : 'dropbox-mosaic mx-auto w-full max-w-[1060px]'
-      }
-    >
+    <div className={containerClass}>
       {/* TILE 1: Framework / Prompt Decks (Slate Navy) */}
       <button
         onClick={() => onAction({ type: 'cards' })}

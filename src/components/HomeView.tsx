@@ -8,14 +8,14 @@ import {
   Check,
   Plus,
 } from 'lucide-react';
-import { siteConfig } from '../site.config';
 import {
   archiveDocs,
   allPromptCards,
   type PromptCard,
 } from '../lib/content';
 import { useCopy } from '../lib/useCopy';
-import { PinwheelMosaic, type MosaicAction } from './PinwheelMosaic';
+import { type MosaicAction } from './PinwheelMosaic';
+import { BlueprintIntroStage } from './BlueprintIntroStage';
 import { PromptCardItem } from './PromptCardItem';
 
 interface HomeViewProps {
@@ -24,6 +24,7 @@ interface HomeViewProps {
   onOpenGuide: () => void;
   onOpenSearch: () => void;
   onFocusCard: (card: PromptCard, pool: PromptCard[]) => void;
+  onIntroProgress?: (progress: number) => void;
 }
 
 const FIXED_CATEGORIES = [
@@ -40,6 +41,7 @@ export function HomeView({
   onOpenGuide,
   onOpenSearch,
   onFocusCard,
+  onIntroProgress,
 }: HomeViewProps) {
   const [selectedCategory, setSelectedCategory] = useState<string>('全部');
   const [viewMode, setViewMode] = useState<'index' | 'grid'>('index');
@@ -66,34 +68,11 @@ export function HomeView({
 
   return (
     <div className="animate-dropbox-in">
-      {/* 1. ARCHITECTURAL BLUEPRINT OPENING + ICONIC 8-TILE PINWHEEL MOSAIC */}
-      <section className="blueprint-grid-bg border-b border-[var(--blueprint-line)] bg-white">
-        <div className="mx-auto max-w-[1400px] border-x border-[var(--blueprint-line)] px-4 pb-16 pt-8 sm:px-8 sm:pb-20 sm:pt-12">
-          {/* Top Blueprint Framing Header */}
-          <div className="mx-auto mb-8 max-w-[1060px] border-b border-[var(--blueprint-line)] pb-6">
-            <div className="flex flex-wrap items-center justify-between gap-2 font-mono-tech text-[10px] font-semibold uppercase tracking-[0.16em] text-[var(--brand-blue)]">
-              <span>{siteConfig.edition}</span>
-              <span>HOVER TILES FOR WIREFRAME · CLICK TO ENTER</span>
-            </div>
-
-            <div className="mt-4 grid grid-cols-1 items-end gap-5 lg:grid-cols-12">
-              <div className="lg:col-span-7">
-                <h1 className="font-display text-3xl font-bold leading-[1.08] tracking-[-0.03em] text-[var(--ink-base)] sm:text-5xl">
-                  AI 研习指南与知识矩阵
-                </h1>
-              </div>
-              <div className="lg:col-span-5 lg:text-right">
-                <p className="text-balance text-xs leading-relaxed text-[var(--ink-secondary)] sm:text-[13px]">
-                  {siteConfig.manifesto}
-                </p>
-              </div>
-            </div>
-          </div>
-
-          {/* The Iconic Authentic Dropbox 8-Tile + Center Blue Square Pinwheel Mosaic */}
-          <PinwheelMosaic variant="hero" onAction={handleMosaicAction} />
-        </div>
-      </section>
+      {/* 1. AUTHENTIC DROPBOX 3-ACT SCROLL-DRIVEN OPENING HERO -> 8-TILE PINWHEEL MOSAIC */}
+      <BlueprintIntroStage
+        onAction={handleMosaicAction}
+        onProgressChange={onIntroProgress}
+      />
 
       {/* 2. HIGH-CONTRAST DARK #1E1919 BAND — FEATURED MONOGRAPH SPOTLIGHT */}
       {featuredDoc && (
