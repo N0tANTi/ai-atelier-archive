@@ -7,6 +7,8 @@ interface PromptCardItemProps {
   onCopy: () => void;
   onFocus: () => void;
   compact?: boolean;
+  showOwnerBadge?: boolean;
+  onOpenOwner?: () => void;
 }
 
 const DUOTONE_THEMES = [
@@ -24,6 +26,8 @@ export function PromptCardItem({
   onCopy,
   onFocus,
   compact = false,
+  showOwnerBadge = false,
+  onOpenOwner,
 }: PromptCardItemProps) {
   const theme = DUOTONE_THEMES[(card.number - 1) % DUOTONE_THEMES.length];
 
@@ -36,7 +40,7 @@ export function PromptCardItem({
       >
         <div className={compact ? 'p-5' : 'p-6'}>
           <div className="flex items-center justify-between gap-2">
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center gap-2">
               <span
                 className="px-2 py-0.5 font-mono-tech text-[10px] font-bold uppercase tracking-wider transition-colors duration-300 group-hover:!bg-[#0061FF] group-hover:!text-white"
                 style={{
@@ -46,11 +50,21 @@ export function PromptCardItem({
               >
                 {card.stage || `STAGE ${card.number}`}
               </span>
-              <span
-                className="font-mono-tech text-[10px] font-semibold tracking-[0.12em] opacity-80 group-hover:text-white/70"
-              >
+              <span className="font-mono-tech text-[10px] font-semibold tracking-[0.12em] opacity-80 group-hover:text-white/70">
                 CARD #{String(card.number).padStart(2, '0')}
               </span>
+              {showOwnerBadge && (
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onOpenOwner?.();
+                  }}
+                  className="bg-black/15 px-1.5 py-0.5 font-mono-tech text-[10px] font-semibold text-current transition-colors hover:bg-black/30 group-hover:bg-white/15"
+                >
+                  {card.ownerTitle}
+                </button>
+              )}
             </div>
 
             <button

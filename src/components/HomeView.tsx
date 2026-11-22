@@ -122,6 +122,12 @@ export function HomeView({
                   onCopy={() => copy(card.rawPrompt, card.id)}
                   onFocus={() => onFocusCard(card, allPromptCards)}
                   compact
+                  showOwnerBadge
+                  onOpenOwner={() =>
+                    card.ownerType === 'project'
+                      ? onOpenProject(card.ownerSlug, 'prompts')
+                      : onOpenDoc(card.ownerSlug)
+                  }
                 />
               ))}
             </div>

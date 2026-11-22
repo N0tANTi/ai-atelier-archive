@@ -213,7 +213,11 @@ export function App() {
         )}
 
         {route.view === 'prompts' && (
-          <PromptLibraryView onFocusCard={handleFocusCard} />
+          <PromptLibraryView
+            onFocusCard={handleFocusCard}
+            onOpenProject={handleOpenProject}
+            onOpenDoc={handleOpenDoc}
+          />
         )}
 
         {route.view === 'demos' && (
