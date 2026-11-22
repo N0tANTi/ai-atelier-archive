@@ -46,10 +46,16 @@ export function HomeView({
 }: HomeViewProps) {
   const [selectedCategory, setSelectedCategory] = useState<string>('全部');
   const [viewMode, setViewMode] = useState<'index' | 'grid'>('index');
+  const [featuredIdx, setFeaturedIdx] = useState(0);
   const catalogRef = useRef<HTMLElement>(null);
   const { copiedId, copy } = useCopy();
 
-  const featuredDoc = archiveDocs[0];
+  const featuredList = useMemo(() => {
+    const list = archiveDocs.filter((d) => d.featured);
+    return list.length > 0 ? list : archiveDocs.slice(0, 1);
+  }, []);
+
+  const featuredDoc = featuredList[featuredIdx] ?? featuredList[0];
 
   const filteredDocs = useMemo(() => {
     if (selectedCategory === '全部') return archiveDocs;
@@ -79,6 +85,36 @@ export function HomeView({
       {featuredDoc && (
         <section className="bg-[var(--bg-dark-band)] text-white">
           <div className="mx-auto max-w-[1400px] border-x border-white/10 px-5 py-16 sm:px-8 sm:py-20">
+            {/* Multi-Featured Switcher Pill Bar */}
+            {featuredList.length > 1 && (
+              <div className="mb-8 flex flex-wrap items-center justify-between gap-3 border-b border-white/12 pb-5">
+                <span className="font-mono-tech text-[10px] font-semibold uppercase tracking-[0.16em] text-[#3DD6F5]">
+                  FEATURED SHOWCASE · 精选作品切换 ({featuredList.length})
+                </span>
+                <div className="flex flex-wrap gap-2">
+                  {featuredList.map((item, idx) => {
+                    const active = idx === featuredIdx;
+                    return (
+                      <button
+                        key={item.slug}
+                        onClick={() => setFeaturedIdx(idx)}
+                        className={`inline-flex items-center gap-2 px-3.5 py-1.5 text-xs font-semibold transition-colors ${
+                          active
+                            ? 'bg-[var(--brand-blue)] text-white'
+                            : 'border border-white/20 bg-white/[0.04] text-white/75 hover:border-white hover:text-white'
+                        }`}
+                      >
+                        <span className="font-mono-tech text-[10px] opacity-80">
+                          NO.{item.number}
+                        </span>
+                        <span>{item.title.split('·')[0].trim()}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
             <div className="grid grid-cols-1 items-start gap-10 lg:grid-cols-12">
               <div className="lg:col-span-7">
                 <div className="flex flex-wrap items-center gap-2">
@@ -105,10 +141,19 @@ export function HomeView({
 
                 <div className="mt-7 flex flex-wrap gap-3">
                   <button
-                    onClick={() => onOpenDoc(featuredDoc.slug, 'cards')}
+                    onClick={() =>
+                      onOpenDoc(
+                        featuredDoc.slug,
+                        featuredDoc.promptCards.length > 0 ? 'cards' : undefined
+                      )
+                    }
                     className="group inline-flex items-center gap-2 bg-[var(--brand-blue)] px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-white hover:text-[#1E1919]"
                   >
-                    <span>进入 6 张卡片与交互工作台</span>
+                    <span>
+                      {featuredDoc.promptCards.length > 0
+                        ? `进入 ${featuredDoc.promptCards.length} 张卡片与交互工作台`
+                        : '阅读完整技术拆解与架构'}
+                    </span>
                     <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
                   </button>
 
@@ -118,7 +163,9 @@ export function HomeView({
                       className="inline-flex items-center gap-2 bg-[#FA551E] px-5 py-3 text-sm font-semibold text-white transition-colors hover:bg-white hover:text-[#1E1919]"
                     >
                       <FolderGit2 className="h-4 w-4" />
-                      <span>源码仓库 &amp; 实时 3D 预览</span>
+                      <span>
+                        {featuredDoc.demo ? '源码仓库 & 实时 3D 预览' : '源码仓库 & 模块索引'}
+                      </span>
                     </button>
                   )}
 
@@ -145,9 +192,9 @@ export function HomeView({
                 </div>
               </div>
 
-              {/* Right Column: Real Rendered Sunset Preview + Interactive Stage Quick Jump List */}
+              {/* Right Column: Visual Preview + Interactive Quick Inspector */}
               <div className="border border-white/15 bg-white/[0.03] lg:col-span-5">
-                {featuredDoc.preview && (
+                {featuredDoc.preview ? (
                   <button
                     onClick={() => onOpenDoc(featuredDoc.slug, 'source')}
                     className="group relative block h-44 w-full overflow-hidden border-b border-white/12 text-left"
@@ -160,50 +207,126 @@ export function HomeView({
                     <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-transparent to-transparent" />
                     <div className="absolute bottom-3 left-4 right-4 flex items-center justify-between">
                       <span className="font-mono-tech text-[10px] font-semibold uppercase tracking-[0.14em] text-[#FAD24B]">
-                        LIVE THREE.JS SCENE · OPEN SOURCE
+                        {featuredDoc.demoTag || 'LIVE THREE.JS SCENE · OPEN SOURCE'}
                       </span>
                       <span className="bg-[var(--brand-blue)] px-2 py-0.5 font-mono-tech text-[10px] font-bold text-white">
                         RUN 3D →
                       </span>
                     </div>
                   </button>
+                ) : (
+                  <button
+                    onClick={() => onOpenDoc(featuredDoc.slug, 'source')}
+                    className="group relative block h-36 w-full overflow-hidden border-b border-white/12 p-5 text-left"
+                    style={{
+                      background: `linear-gradient(135deg, ${featuredDoc.palette[0] || '#31554B'} 0%, #1E1919 72%, ${featuredDoc.palette[1] || '#914631'} 100%)`,
+                    }}
+                  >
+                    <div className="flex h-full flex-col justify-between">
+                      <div className="flex items-center justify-between">
+                        <span className="font-mono-tech text-[10px] font-semibold uppercase tracking-[0.14em] text-[#FAD24B]">
+                          {featuredDoc.demoTag || 'INTERACTIVE 3D REPOSITORY'}
+                        </span>
+                        <div className="flex gap-1.5">
+                          {featuredDoc.palette.map((hex) => (
+                            <span
+                              key={hex}
+                              className="h-3 w-3 border border-white/30"
+                              style={{ backgroundColor: hex }}
+                            />
+                          ))}
+                        </div>
+                      </div>
+                      <div className="flex items-end justify-between">
+                        <span className="font-display text-lg font-bold text-white">
+                          {featuredDoc.repo?.replace(/^https?:\/\/github\.com\//i, '')}
+                        </span>
+                        <span className="bg-[var(--brand-blue)] px-2.5 py-0.5 font-mono-tech text-[10px] font-bold text-white transition-colors group-hover:bg-white group-hover:text-[#1E1919]">
+                          OPEN SOURCE →
+                        </span>
+                      </div>
+                    </div>
+                  </button>
                 )}
 
                 <div className="p-6">
-                  <div className="flex items-center justify-between border-b border-white/12 pb-3">
-                    <span className="font-mono-tech text-[10px] font-semibold uppercase tracking-[0.16em] text-[#3DD6F5]">
-                      STAGE 01 → 06 QUICK INSPECTOR
-                    </span>
-                    <span className="font-mono-tech text-[10px] text-white/50">
-                      CLICK TO PREVIEW
-                    </span>
-                  </div>
-
-                  <div className="mt-2 divide-y divide-white/10">
-                    {featuredDoc.promptCards.map((card) => (
-                      <button
-                        key={card.id}
-                        onClick={() => onFocusCard(card, featuredDoc.promptCards)}
-                        className="group flex w-full items-center justify-between py-2.5 text-left transition-colors hover:text-[#FAD24B]"
-                      >
-                        <div className="flex items-center gap-3">
-                          <span
-                            className="h-2.5 w-2.5 shrink-0"
-                            style={{ backgroundColor: card.accentHex }}
-                          />
-                          <span className="font-mono-tech text-xs text-white/50">
-                            0{card.number}
-                          </span>
-                          <span className="text-sm font-medium text-white/90 group-hover:text-white">
-                            {card.title}
-                          </span>
-                        </div>
-                        <span className="font-mono-tech text-[10px] text-white/45 group-hover:text-[#FAD24B]">
-                          {card.stage} →
+                  {featuredDoc.promptCards.length > 0 ? (
+                    <>
+                      <div className="flex items-center justify-between border-b border-white/12 pb-3">
+                        <span className="font-mono-tech text-[10px] font-semibold uppercase tracking-[0.16em] text-[#3DD6F5]">
+                          STAGE 01 → 0{featuredDoc.promptCards.length} QUICK INSPECTOR
                         </span>
-                      </button>
-                    ))}
-                  </div>
+                        <span className="font-mono-tech text-[10px] text-white/50">
+                          CLICK TO PREVIEW
+                        </span>
+                      </div>
+
+                      <div className="mt-2 divide-y divide-white/10">
+                        {featuredDoc.promptCards.map((card) => (
+                          <button
+                            key={card.id}
+                            onClick={() => onFocusCard(card, featuredDoc.promptCards)}
+                            className="group flex w-full items-center justify-between py-2.5 text-left transition-colors hover:text-[#FAD24B]"
+                          >
+                            <div className="flex items-center gap-3">
+                              <span
+                                className="h-2.5 w-2.5 shrink-0"
+                                style={{ backgroundColor: card.accentHex }}
+                              />
+                              <span className="font-mono-tech text-xs text-white/50">
+                                0{card.number}
+                              </span>
+                              <span className="text-sm font-medium text-white/90 group-hover:text-white">
+                                {card.title}
+                              </span>
+                            </div>
+                            <span className="font-mono-tech text-[10px] text-white/45 group-hover:text-[#FAD24B]">
+                              {card.stage} →
+                            </span>
+                          </button>
+                        ))}
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <div className="flex items-center justify-between border-b border-white/12 pb-3">
+                        <span className="font-mono-tech text-[10px] font-semibold uppercase tracking-[0.16em] text-[#3DD6F5]">
+                          SOURCE ARCHITECTURE · CORE MODULES
+                        </span>
+                        <span className="font-mono-tech text-[10px] text-white/50">
+                          GITHUB FILES
+                        </span>
+                      </div>
+
+                      <div className="mt-2 divide-y divide-white/10">
+                        {featuredDoc.sourceMap.map((entry) => (
+                          <a
+                            key={entry.stage}
+                            href={
+                              featuredDoc.repo && entry.files[0]
+                                ? `${featuredDoc.repo}/blob/main/${entry.files[0]}`
+                                : '#'
+                            }
+                            target="_blank"
+                            rel="noreferrer"
+                            className="group flex w-full items-center justify-between gap-2 py-2.5 text-left transition-colors hover:text-[#FAD24B]"
+                          >
+                            <div className="flex min-w-0 items-center gap-2.5">
+                              <span className="shrink-0 font-mono-tech text-[10px] text-[#3DD6F5]">
+                                {entry.stage}
+                              </span>
+                              <span className="truncate text-sm font-medium text-white/90 group-hover:text-white">
+                                {entry.label}
+                              </span>
+                            </div>
+                            <span className="shrink-0 font-mono-tech text-[10px] text-white/45 group-hover:text-[#FAD24B]">
+                              {entry.files[0]?.split('/').pop()} ↗
+                            </span>
+                          </a>
+                        ))}
+                      </div>
+                    </>
+                  )}
                 </div>
               </div>
             </div>

@@ -62,6 +62,8 @@ export interface ArchiveDoc {
   palette: string[];
   repo?: string;
   demo?: string;
+  demoControls?: string;
+  demoTag?: string;
   preview?: string;
   license?: string;
   sourceMap: SourceMapEntry[];
@@ -390,6 +392,9 @@ function loadArchive(): ArchiveDoc[] {
     const tags = Array.isArray(data.tags) ? (data.tags as string[]) : [];
     const repo = typeof data.repo === 'string' ? data.repo : undefined;
     const demo = typeof data.demo === 'string' ? data.demo : undefined;
+    const demoControls =
+      typeof data.demoControls === 'string' ? data.demoControls : undefined;
+    const demoTag = typeof data.demoTag === 'string' ? data.demoTag : undefined;
     const preview = typeof data.preview === 'string' ? data.preview : undefined;
     const license = typeof data.license === 'string' ? data.license : undefined;
     const sourceMap = parseSourceMap(data.sourceMap);
@@ -449,6 +454,8 @@ function loadArchive(): ArchiveDoc[] {
       palette,
       repo,
       demo,
+      demoControls,
+      demoTag,
       preview,
       license,
       sourceMap,

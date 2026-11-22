@@ -243,6 +243,20 @@ export function DocumentView({
                 </button>
               )}
 
+              {!isPromptDeck && (
+                <button
+                  onClick={() => setActiveTab('article')}
+                  className={`inline-flex items-center gap-2 px-4 py-2 text-xs font-semibold transition-colors ${
+                    activeTab === 'article'
+                      ? 'bg-[var(--ink-base)] text-white'
+                      : 'border border-[var(--hairline-strong)] bg-white text-[var(--ink-secondary)] hover:border-[var(--ink-base)] hover:text-[var(--ink-base)]'
+                  }`}
+                >
+                  <BookOpen className="h-3.5 w-3.5" />
+                  <span>01 / 技术拆解正文</span>
+                </button>
+              )}
+
               {(doc.repo || doc.demo) && (
                 <button
                   onClick={() => setActiveTab('source')}
@@ -253,21 +267,10 @@ export function DocumentView({
                   }`}
                 >
                   <FolderGit2 className="h-3.5 w-3.5" />
-                  <span>04 / 源码仓库 &amp; 实时 3D</span>
-                </button>
-              )}
-
-              {!isPromptDeck && (
-                <button
-                  onClick={() => setActiveTab('article')}
-                  className={`inline-flex items-center gap-2 px-4 py-2 text-xs font-semibold transition-colors ${
-                    activeTab === 'article'
-                      ? 'bg-[var(--ink-base)] text-white'
-                      : 'border border-[var(--hairline-strong)] bg-white text-[var(--ink-secondary)]'
-                  }`}
-                >
-                  <BookOpen className="h-3.5 w-3.5" />
-                  <span>正文阅读</span>
+                  <span>
+                    {isPromptDeck ? '04 / ' : '02 / '}
+                    {doc.demo ? '源码仓库 & 实时 3D' : '源码仓库 & 模块索引'}
+                  </span>
                 </button>
               )}
 

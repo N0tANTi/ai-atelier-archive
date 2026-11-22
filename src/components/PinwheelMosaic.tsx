@@ -18,7 +18,10 @@ export function PinwheelMosaic({
   variant = 'hero',
   onAction,
 }: PinwheelMosaicProps) {
-  const featuredDoc = archiveDocs[0];
+  const promptDeckDoc =
+    archiveDocs.find((d) => d.promptCards.length > 0) ?? archiveDocs[0];
+  const latestShaderDoc =
+    archiveDocs.find((d) => d.title.includes('雨过山寺')) ?? archiveDocs[0];
   const isOverlay = variant === 'overlay';
 
   const containerClass = isOverlay
@@ -83,8 +86,8 @@ export function PinwheelMosaic({
       {/* TILE 2: Featured Monograph - 绿野晚霞 (Warm Gold) */}
       <button
         onClick={() =>
-          featuredDoc
-            ? onAction({ type: 'doc', slug: featuredDoc.slug, tab: 'cards' })
+          promptDeckDoc
+            ? onAction({ type: 'doc', slug: promptDeckDoc.slug, tab: 'cards' })
             : onAction({ type: 'cards' })
         }
         className="mosaic-tile dm-tile dm-2 group flex flex-col justify-between p-5 text-left sm:p-6"
@@ -93,10 +96,10 @@ export function PinwheelMosaic({
         <div className="flex items-start justify-between gap-2">
           <div>
             <span className="tile-label block font-display text-lg font-semibold leading-tight text-[#1E1919] sm:text-2xl">
-              精选 · 绿野晚霞 Prompt 卡片集
+              绿野晚霞 · Prompt 卡片集
             </span>
             <span className="tile-meta-muted mt-0.5 block font-mono-tech text-[10px] uppercase tracking-[0.12em] text-[#594404]">
-              FEATURED NO.01 · THREE.JS STAGE 1 → 6
+              NO.01 · THREE.JS STAGE 1 → 6
             </span>
           </div>
           <span className="tile-meta shrink-0 whitespace-nowrap rounded bg-black/10 px-2 py-0.5 font-mono-tech text-[10px] font-semibold text-[#1E1919] group-hover:bg-white/15">
@@ -129,12 +132,12 @@ export function PinwheelMosaic({
         </div>
       </button>
 
-      {/* TILE 3: Visual & Shader / 3D Rendering (Bright Cyan) */}
+      {/* TILE 3: Featured Wuxia Watercolor Demo - 雨过山寺 (Bright Cyan) */}
       <button
         onClick={() =>
-          featuredDoc
-            ? onAction({ type: 'doc', slug: featuredDoc.slug, tab: 'cards' })
-            : onAction({ type: 'category', category: 'Prompt 卡片集' })
+          latestShaderDoc
+            ? onAction({ type: 'doc', slug: latestShaderDoc.slug })
+            : onAction({ type: 'category', category: '技术笔记' })
         }
         className="mosaic-tile dm-tile dm-3 group flex flex-col justify-between p-5 text-left sm:p-6"
         style={{ backgroundColor: 'var(--tile-cyan-bg)', color: '#1E1919' }}
@@ -142,14 +145,14 @@ export function PinwheelMosaic({
         <div className="flex items-start justify-between gap-2">
           <div>
             <span className="tile-label block font-display text-lg font-semibold leading-tight text-[#1E1919] sm:text-xl">
-              图形学与手绘渲染
+              雨过山寺 · 武侠水彩 Demo
             </span>
             <span className="tile-meta-muted mt-0.5 block font-mono-tech text-[10px] uppercase tracking-[0.12em] text-[#0B4C5F]">
-              GLSL3 · SHADER · KUWAHARA
+              NEW NO.02 · WATERCOLOR WASH · 2-BONE IK
             </span>
           </div>
-          <span className="tile-meta-muted font-mono-tech text-[10px] text-[#0B4C5F]">
-            03
+          <span className="tile-meta shrink-0 whitespace-nowrap rounded bg-black/10 px-2 py-0.5 font-mono-tech text-[10px] font-semibold text-[#0B4C5F] group-hover:bg-white/15">
+            NEW →
           </span>
         </div>
 
@@ -352,8 +355,8 @@ export function PinwheelMosaic({
       {/* TILE 7: Interactive 3D Demo & Linked GitHub Source (Deep Burgundy/Maroon - Imagery Homage) */}
       <button
         onClick={() =>
-          featuredDoc
-            ? onAction({ type: 'doc', slug: featuredDoc.slug, tab: 'source' })
+          promptDeckDoc
+            ? onAction({ type: 'doc', slug: promptDeckDoc.slug, tab: 'source' })
             : onAction({ type: 'cards' })
         }
         className="mosaic-tile dm-tile dm-7 group flex flex-col justify-between p-5 text-left sm:p-6"

@@ -35,21 +35,26 @@ export function SourceCodePanel({ doc }: SourceCodePanelProps) {
   const repoSlug = repoUrl
     ? repoUrl.replace(/^https?:\/\/github\.com\//i, '')
     : '';
+  const repoName = repoSlug.split('/')[1] || 'repo';
   const cloneCommand = repoUrl
-    ? `git clone ${repoUrl}.git && cd ${repoSlug.split('/')[1] || 'repo'} && npm install && npm run dev`
+    ? `git clone ${repoUrl}.git && cd ${repoName} && npm ci && npm run build && npm run serve`
     : '';
+
+  const p0 = doc.palette[0] || '#2B4464';
+  const p1 = doc.palette[1] || '#FA551E';
+  const p2 = doc.palette[2] || '#FAD24B';
 
   return (
     <div className="space-y-8">
-      {/* Top Split: Live 3D Interactive Demo + GitHub Repo Card */}
+      {/* Top Split: Live 3D Interactive Demo / Poster + GitHub Repo Card */}
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-12">
-        {/* Left 7 Cols: Real Rendered Sunset Preview / Click-to-Launch Embedded Live WebGL2 3D */}
+        {/* Left 7 Cols: Preview Image OR Bespoke Architectural Poster + Optional Embedded Live 3D */}
         <div className="overflow-hidden border border-[var(--ink-base)] bg-[var(--bg-dark-band)] text-white lg:col-span-7">
           <div className="flex items-center justify-between border-b border-white/12 px-5 py-3">
             <div className="flex items-center gap-2">
               <span className="h-2 w-2 bg-[#B4DC19]" />
               <span className="font-mono-tech text-[10px] font-semibold uppercase tracking-[0.16em] text-[#3DD6F5]">
-                LIVE 3D RUNTIME · THREE.JS WEBGL2
+                {doc.demoTag || 'INTERACTIVE PROJECT · THREE.JS WEBGL2'}
               </span>
             </div>
             <div className="flex items-center gap-2">
@@ -87,58 +92,132 @@ export function SourceCodePanel({ doc }: SourceCodePanelProps) {
                 />
               </div>
               <div className="flex flex-wrap items-center justify-between gap-2 border-t border-white/12 bg-black/40 px-5 py-2.5 font-mono-tech text-[10px] text-white/70">
-                <span>操作提示：点击画面开始漫游 · WASD 移动 · T 切换时间色板 · V 切换视角</span>
-                <span className="text-[#B4DC19]">HOSTED ON GITHUB PAGES</span>
+                <span>
+                  操作提示：{doc.demoControls || '拖动环视 · 滚轮缩放'}
+                </span>
+                <span className="text-[#B4DC19]">LIVE RUNTIME</span>
               </div>
             </div>
           ) : (
             <div className="group relative aspect-[16/10] w-full overflow-hidden bg-[#161414]">
-              {doc.preview && (
+              {doc.preview ? (
                 <img
                   src={doc.preview}
                   alt={doc.title}
                   className="h-full w-full object-cover opacity-85 transition-transform duration-700 ease-dropbox group-hover:scale-[1.03]"
                 />
+              ) : (
+                /* Bespoke Geometric Architectural / Watercolor Poster when no static image is provided */
+                <div
+                  className="relative flex h-full w-full items-center justify-center overflow-hidden"
+                  style={{
+                    background: `linear-gradient(135deg, ${p0} 0%, #1E1919 65%, ${p1} 100%)`,
+                  }}
+                >
+                  <svg
+                    viewBox="0 0 640 360"
+                    className="h-full w-full opacity-35"
+                    fill="none"
+                  >
+                    <path
+                      d="M0 280 Q 160 190 320 240 T 640 210 L 640 360 L 0 360 Z"
+                      fill={p2}
+                      fillOpacity="0.35"
+                    />
+                    <path
+                      d="M170 215 L320 120 L470 215"
+                      stroke="#F6F1E6"
+                      strokeWidth="3"
+                    />
+                    <path
+                      d="M210 215 H430 V265 H210 Z"
+                      stroke="#F6F1E6"
+                      strokeWidth="2"
+                    />
+                    <line
+                      x1="60"
+                      y1="265"
+                      x2="580"
+                      y2="265"
+                      stroke="#F6F1E6"
+                      strokeWidth="2"
+                      strokeDasharray="6 6"
+                    />
+                    <circle
+                      cx="495"
+                      cy="95"
+                      r="34"
+                      stroke="#F6F1E6"
+                      strokeWidth="2"
+                    />
+                  </svg>
+                </div>
               )}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/25 to-transparent" />
+
+              <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent" />
 
               <div className="absolute inset-0 flex flex-col justify-between p-6">
-                <div className="flex justify-between">
+                <div className="flex items-center justify-between">
                   <span className="bg-black/55 px-2.5 py-1 font-mono-tech text-[10px] text-white backdrop-blur-xs">
-                    CLICK TO LAUNCH INTERACTIVE 3D
+                    {demoUrl
+                      ? 'CLICK TO LAUNCH INTERACTIVE 3D'
+                      : 'OPEN SOURCE INTERACTIVE DEMO'}
                   </span>
+                  <div className="flex items-center gap-1.5">
+                    {doc.palette.map((hex) => (
+                      <span
+                        key={hex}
+                        title={hex}
+                        className="h-3 w-3 border border-white/30"
+                        style={{ backgroundColor: hex }}
+                      />
+                    ))}
+                  </div>
                 </div>
 
                 <div className="flex flex-wrap items-end justify-between gap-4">
-                  <div>
+                  <div className="max-w-lg">
                     <p className="font-display text-2xl font-bold text-white">
-                      绿野晚霞 · 实时 3D 探索场景
+                      {doc.title}
                     </p>
                     <p className="mt-1 text-xs text-white/80">
-                      内置 WASD 漫游、T 键切换 4 套时间色板与 V 键第一人称视角
+                      {doc.demoControls || doc.subtitle}
                     </p>
                   </div>
 
-                  {demoUrl && (
-                    <div className="flex flex-wrap gap-2">
-                      <button
-                        onClick={() => setLiveDemoOpen(true)}
-                        className="inline-flex items-center gap-2 bg-[var(--brand-blue)] px-4 py-2.5 text-xs font-semibold text-white transition-colors hover:bg-white hover:text-[#1E1919]"
-                      >
-                        <Play className="h-3.5 w-3.5 fill-current" />
-                        <span>站内直接运行 3D</span>
-                      </button>
+                  <div className="flex flex-wrap gap-2">
+                    {demoUrl ? (
+                      <>
+                        <button
+                          onClick={() => setLiveDemoOpen(true)}
+                          className="inline-flex items-center gap-2 bg-[var(--brand-blue)] px-4 py-2.5 text-xs font-semibold text-white transition-colors hover:bg-white hover:text-[#1E1919]"
+                        >
+                          <Play className="h-3.5 w-3.5 fill-current" />
+                          <span>站内直接运行 3D</span>
+                        </button>
+                        <a
+                          href={demoUrl}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="inline-flex items-center gap-1.5 border border-white/40 bg-black/45 px-4 py-2.5 text-xs font-semibold text-white backdrop-blur-xs transition-colors hover:bg-white hover:text-[#1E1919]"
+                        >
+                          <span>全屏体验</span>
+                          <ArrowUpRight className="h-3.5 w-3.5" />
+                        </a>
+                      </>
+                    ) : repoUrl ? (
                       <a
-                        href={demoUrl}
+                        href={repoUrl}
                         target="_blank"
                         rel="noreferrer"
-                        className="inline-flex items-center gap-1.5 border border-white/40 bg-black/45 px-4 py-2.5 text-xs font-semibold text-white backdrop-blur-xs transition-colors hover:bg-white hover:text-[#1E1919]"
+                        className="inline-flex items-center gap-2 bg-[var(--brand-blue)] px-4 py-2.5 text-xs font-semibold text-white transition-colors hover:bg-white hover:text-[#1E1919]"
                       >
-                        <span>全屏体验</span>
+                        <FolderGit2 className="h-3.5 w-3.5" />
+                        <span>查看 GitHub 源码</span>
                         <ArrowUpRight className="h-3.5 w-3.5" />
                       </a>
-                    </div>
-                  )}
+                    ) : null}
+                  </div>
                 </div>
               </div>
             </div>
@@ -165,11 +244,10 @@ export function SourceCodePanel({ doc }: SourceCodePanelProps) {
                 {repoSlug || 'Source Repository'}
               </h3>
               <p className="mt-2 text-xs leading-relaxed text-white/80">
-                独立托管的完整工程源码仓库，包含 Three.js 着色器管线、程序化地形笔触、LOD 草海、体积云烘焙、角色布料物理与后处理源码。
+                {doc.summary}
               </p>
             </div>
 
-            {/* Clone & Run Snippet */}
             {cloneCommand && (
               <div className="border-b border-[var(--hairline)] p-5">
                 <div className="mb-2 flex items-center justify-between">
@@ -228,20 +306,20 @@ export function SourceCodePanel({ doc }: SourceCodePanelProps) {
         </div>
       </div>
 
-      {/* Stage 1 -> Stage 6 Prompt-to-Source File Matrix */}
+      {/* Module / Stage -> Source File Matrix */}
       {doc.sourceMap.length > 0 && repoUrl && (
         <div className="border border-[var(--blueprint-line-strong)] bg-white">
           <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[var(--blueprint-line)] bg-[var(--bg-subtle)] px-6 py-4">
             <div>
               <span className="font-mono-tech text-[10px] font-bold uppercase tracking-[0.16em] text-[var(--brand-blue)]">
-                PROMPT ↔ SOURCE CODE MATRIX
+                ARCHITECTURE ↔ SOURCE CODE MATRIX
               </span>
               <h3 className="mt-1 font-display text-lg font-bold text-[var(--ink-base)]">
-                Stage 1 → Stage 6 源码文件精准索引（点击直达 GitHub 对应文件）
+                核心模块源码文件精准索引（点击直达 GitHub 对应文件）
               </h3>
             </div>
             <span className="font-mono-tech text-[11px] text-[var(--ink-muted)]">
-              {doc.sourceMap.reduce((sum, item) => sum + item.files.length, 0)} CORE MODULES
+              {doc.sourceMap.reduce((sum, item) => sum + item.files.length, 0)} CORE FILES
             </span>
           </div>
 

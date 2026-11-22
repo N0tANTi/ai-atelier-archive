@@ -15,6 +15,8 @@ summary: "一套完整的风格化 3D 场景分阶段工程 Prompt：从无噪�
 featured: true
 repo: "https://github.com/N0tANTi/painted-valley-sunset"
 demo: "https://n0tanti.github.io/painted-valley-sunset/"
+demoTag: "LIVE 3D RUNTIME · THREE.JS WEBGL2"
+demoControls: "点击画面开始漫游 · WASD 移动 · T 切换 4 套时间色板 · V 切换第一人称视角"
 preview: "./previews/painted-valley-sunset.jpg"
 license: "MIT / CC0 1.0"
 sourceMap:
