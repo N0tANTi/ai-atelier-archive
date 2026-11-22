@@ -8,7 +8,7 @@ interface CardFocusModalProps {
   activeIndex: number | null;
   onClose: () => void;
   onChangeIndex: (index: number) => void;
-  onGoToDoc?: (slug: string) => void;
+  onGoToOwner?: (card: PromptCard) => void;
 }
 
 const DUOTONE_THEMES = [
@@ -25,7 +25,7 @@ export function CardFocusModal({
   activeIndex,
   onClose,
   onChangeIndex,
-  onGoToDoc,
+  onGoToOwner,
 }: CardFocusModalProps) {
   const { copiedId, copy } = useCopy();
 
@@ -164,15 +164,15 @@ export function CardFocusModal({
             </span>
           </div>
 
-          {onGoToDoc && (
+          {onGoToOwner && (
             <button
               onClick={() => {
                 onClose();
-                onGoToDoc(card.docSlug);
+                onGoToOwner(card);
               }}
               className="inline-flex items-center gap-1 text-xs font-semibold text-[var(--ink-base)] transition-colors hover:text-[var(--brand-blue)]"
             >
-              <span>打开所属档案</span>
+              <span>打开所属项目（{card.ownerTitle}）</span>
               <ArrowUpRight className="h-3.5 w-3.5" />
             </button>
           )}

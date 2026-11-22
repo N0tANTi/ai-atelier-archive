@@ -1,35 +1,35 @@
 import { Search, LayoutGrid } from 'lucide-react';
 import { siteConfig } from '../site.config';
-import { archiveDocs, allPromptCards } from '../lib/content';
+import { projects, allPromptCards } from '../lib/content';
+import type { GlobalHubRoute } from './PinwheelMosaic';
 
-export type NavRoute = 'home' | 'cards' | 'guide' | 'doc';
+export type ActiveViewType = GlobalHubRoute | 'project' | 'doc';
 
 interface NavbarProps {
-  activeRoute: NavRoute;
-  onNavigate: (route: 'home' | 'cards' | 'guide') => void;
+  activeView: ActiveViewType;
+  onNavigate: (route: GlobalHubRoute) => void;
   onOpenSearch: () => void;
   onOpenMosaic: () => void;
 }
 
 export function Navbar({
-  activeRoute,
+  activeView,
   onNavigate,
   onOpenSearch,
   onOpenMosaic,
 }: NavbarProps) {
-  const navItems: {
-    id: 'home' | 'cards' | 'guide';
-    label: string;
-    en: string;
-  }[] = [
-    { id: 'home', label: '首页矩阵', en: 'INDEX' },
-    { id: 'cards', label: 'Prompt 卡片库', en: 'DECKS' },
-    { id: 'guide', label: '归档规范', en: 'SCHEMA' },
+  const navItems: { id: GlobalHubRoute; label: string; en: string }[] = [
+    { id: 'home', label: '首页', en: 'INDEX' },
+    { id: 'projects', label: '项目', en: 'PROJECTS' },
+    { id: 'prompts', label: 'Prompt 库', en: 'PROMPTS' },
+    { id: 'demos', label: '3D 展厅', en: 'DEMOS' },
+    { id: 'repos', label: '开源仓库', en: 'REPOS' },
+    { id: 'guide', label: '规范', en: 'SCHEMA' },
   ];
 
   return (
     <header className="sticky top-0 z-30 border-b border-[var(--blueprint-line)] bg-white/95 backdrop-blur-md">
-      <div className="mx-auto flex max-w-[1400px] items-center justify-between px-5 py-3 sm:px-8">
+      <div className="mx-auto flex max-w-[1400px] items-center justify-between gap-3 px-5 py-3 sm:px-8">
         {/* Left: Electric Blue Brand Square + Wordmark */}
         <button
           onClick={() => onNavigate('home')}
@@ -43,28 +43,29 @@ export function Navbar({
               <span className="font-display text-sm font-bold tracking-tight text-[var(--ink-base)]">
                 {siteConfig.brandEn}
               </span>
-              <span className="hidden text-xs font-medium text-[var(--ink-secondary)] sm:inline">
+              <span className="hidden text-xs font-medium text-[var(--ink-secondary)] xl:inline">
                 {siteConfig.brandZh}
               </span>
             </div>
             <span className="font-mono-tech text-[10px] tracking-[0.1em] text-[var(--brand-blue)]">
-              {String(archiveDocs.length).padStart(2, '0')} DOCS ·{' '}
+              {String(projects.length).padStart(2, '0')} PROJECTS ·{' '}
               {String(allPromptCards.length).padStart(2, '0')} CARDS
             </span>
           </div>
         </button>
 
-        {/* Center: Sharp Swiss Navigation */}
+        {/* Center: Clean Global Hub Navigation */}
         <nav className="hidden items-center gap-1 lg:flex" aria-label="Main Navigation">
           {navItems.map((item) => {
             const isActive =
-              activeRoute === item.id ||
-              (activeRoute === 'doc' && item.id === 'home');
+              activeView === item.id ||
+              (activeView === 'project' && item.id === 'projects') ||
+              (activeView === 'doc' && item.id === 'home');
             return (
               <button
                 key={item.id}
                 onClick={() => onNavigate(item.id)}
-                className={`flex shrink-0 items-center gap-2 whitespace-nowrap px-4 py-1.5 text-[13px] font-medium transition-colors duration-200 ${
+                className={`flex shrink-0 items-center gap-1.5 whitespace-nowrap px-3.5 py-1.5 text-[13px] font-medium transition-colors duration-200 ${
                   isActive
                     ? 'bg-[var(--ink-base)] text-white'
                     : 'text-[var(--ink-secondary)] hover:bg-[var(--bg-subtle)] hover:text-[var(--ink-base)]'
@@ -72,7 +73,7 @@ export function Navbar({
               >
                 <span>{item.label}</span>
                 <span
-                  className={`font-mono-tech text-[10px] tracking-[0.08em] ${
+                  className={`hidden font-mono-tech text-[9px] tracking-[0.08em] xl:inline ${
                     isActive ? 'text-white/70' : 'text-[var(--ink-muted)]'
                   }`}
                 >
@@ -87,11 +88,11 @@ export function Navbar({
         <div className="flex shrink-0 items-center gap-2">
           <button
             onClick={onOpenSearch}
-            className="group flex items-center gap-2 whitespace-nowrap border border-[var(--hairline-strong)] bg-white px-3.5 py-1.5 text-xs text-[var(--ink-secondary)] transition-colors hover:border-[var(--brand-blue)] hover:text-[var(--ink-base)]"
-            title="检索资料与 Prompt 卡片 (⌘K / /)"
+            className="group flex items-center gap-2 whitespace-nowrap border border-[var(--hairline-strong)] bg-white px-3 py-1.5 text-xs text-[var(--ink-secondary)] transition-colors hover:border-[var(--brand-blue)] hover:text-[var(--ink-base)]"
+            title="检索项目、卡片、笔记与仓库 (⌘K / /)"
           >
             <Search className="h-3.5 w-3.5 shrink-0 text-[var(--brand-blue)]" />
-            <span className="hidden sm:inline">检索资料与卡片…</span>
+            <span className="hidden sm:inline">全局检索…</span>
             <kbd className="border border-[var(--hairline)] bg-[var(--bg-subtle)] px-1.5 py-0.5 font-mono-tech text-[10px] text-[var(--ink-muted)]">
               ⌘K
             </kbd>
@@ -107,12 +108,12 @@ export function Navbar({
         </div>
       </div>
 
-      {/* Tablet & Mobile sub-nav */}
+      {/* Tablet & Mobile Horizontal Bar */}
       <div className="flex items-center gap-1 overflow-x-auto border-t border-[var(--blueprint-line)] px-5 py-2 lg:hidden">
         {navItems.map((item) => {
           const isActive =
-            activeRoute === item.id ||
-            (activeRoute === 'doc' && item.id === 'home');
+            activeView === item.id ||
+            (activeView === 'project' && item.id === 'projects');
           return (
             <button
               key={item.id}

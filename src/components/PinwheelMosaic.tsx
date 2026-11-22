@@ -1,11 +1,27 @@
 import { Search, X } from 'lucide-react';
-import { archiveDocs, allPromptCards } from '../lib/content';
+import {
+  projects,
+  allPromptCards,
+  allDemos,
+  allNotes,
+  allRepos,
+  allPapers,
+  allWorkflows,
+} from '../lib/content';
+
+export type GlobalHubRoute =
+  | 'home'
+  | 'projects'
+  | 'prompts'
+  | 'demos'
+  | 'notes'
+  | 'workflows'
+  | 'papers'
+  | 'repos'
+  | 'guide';
 
 export type MosaicAction =
-  | { type: 'cards' }
-  | { type: 'doc'; slug: string; tab?: 'cards' | 'master' | 'source' }
-  | { type: 'category'; category: string }
-  | { type: 'guide' }
+  | { type: 'route'; route: GlobalHubRoute }
   | { type: 'search' }
   | { type: 'close' };
 
@@ -18,10 +34,6 @@ export function PinwheelMosaic({
   variant = 'hero',
   onAction,
 }: PinwheelMosaicProps) {
-  const promptDeckDoc =
-    archiveDocs.find((d) => d.promptCards.length > 0) ?? archiveDocs[0];
-  const latestShaderDoc =
-    archiveDocs.find((d) => d.title.includes('雨过山寺')) ?? archiveDocs[0];
   const isOverlay = variant === 'overlay';
 
   const containerClass = isOverlay
@@ -32,27 +44,27 @@ export function PinwheelMosaic({
 
   return (
     <div className={containerClass}>
-      {/* TILE 1: Framework / Prompt Decks (Slate Navy) */}
+      {/* TILE 1: All Projects Hub (Slate Navy) */}
       <button
-        onClick={() => onAction({ type: 'cards' })}
+        onClick={() => onAction({ type: 'route', route: 'projects' })}
         className="mosaic-tile dm-tile dm-1 group flex flex-col justify-between p-5 text-left sm:p-6"
         style={{ backgroundColor: 'var(--tile-navy-bg)', color: '#FFFFFF' }}
       >
         <div className="flex items-start justify-between gap-2">
           <div>
             <span className="tile-label block font-display text-lg font-semibold leading-tight text-white sm:text-xl">
-              Prompt 卡片库
+              全部项目
             </span>
             <span className="tile-meta-muted mt-0.5 block font-mono-tech text-[10px] uppercase tracking-[0.12em] text-[#82B8FF]">
-              PROMPT DECKS · {String(allPromptCards.length).padStart(2, '0')} CARDS
+              PROJECTS · {String(projects.length).padStart(2, '0')} WORKS
             </span>
           </div>
-          <span className="tile-meta-muted font-mono-tech text-[10px] text-white/60">
+          <span className="tile-meta shrink-0 whitespace-nowrap rounded bg-white/12 px-2 py-0.5 font-mono-tech text-[10px] font-semibold text-white">
             01
           </span>
         </div>
 
-        {/* Solid -> Wireframe SVG (3-node connector homage to Framework) */}
+        {/* 3-node connected geometric path -> curved organic wireframe */}
         <div className="relative mt-2 h-16 w-full">
           <svg
             viewBox="0 0 220 72"
@@ -83,31 +95,26 @@ export function PinwheelMosaic({
         </div>
       </button>
 
-      {/* TILE 2: Featured Monograph - 绿野晚霞 (Warm Gold) */}
+      {/* TILE 2: Prompt Cards Library Hub (Warm Gold) */}
       <button
-        onClick={() =>
-          promptDeckDoc
-            ? onAction({ type: 'doc', slug: promptDeckDoc.slug, tab: 'cards' })
-            : onAction({ type: 'cards' })
-        }
+        onClick={() => onAction({ type: 'route', route: 'prompts' })}
         className="mosaic-tile dm-tile dm-2 group flex flex-col justify-between p-5 text-left sm:p-6"
         style={{ backgroundColor: 'var(--tile-gold-bg)', color: '#1E1919' }}
       >
         <div className="flex items-start justify-between gap-2">
           <div>
             <span className="tile-label block font-display text-lg font-semibold leading-tight text-[#1E1919] sm:text-2xl">
-              绿野晚霞 · Prompt 卡片集
+              Prompt 卡片库
             </span>
             <span className="tile-meta-muted mt-0.5 block font-mono-tech text-[10px] uppercase tracking-[0.12em] text-[#594404]">
-              NO.01 · THREE.JS STAGE 1 → 6
+              PROMPT DECKS · {String(allPromptCards.length).padStart(2, '0')} REUSABLE CARDS
             </span>
           </div>
           <span className="tile-meta shrink-0 whitespace-nowrap rounded bg-black/10 px-2 py-0.5 font-mono-tech text-[10px] font-semibold text-[#1E1919] group-hover:bg-white/15">
-            OPEN →
+            02
           </span>
         </div>
 
-        {/* Solid -> Wireframe SVG (Quotation / Voice & Tone homage) */}
         <div className="relative mt-2 h-16 w-full">
           <svg
             viewBox="0 0 240 72"
@@ -132,31 +139,26 @@ export function PinwheelMosaic({
         </div>
       </button>
 
-      {/* TILE 3: Featured Wuxia Watercolor Demo - 雨过山寺 (Bright Cyan) */}
+      {/* TILE 3: Live 3D Demos Gallery Hub (Bright Cyan) */}
       <button
-        onClick={() =>
-          latestShaderDoc
-            ? onAction({ type: 'doc', slug: latestShaderDoc.slug })
-            : onAction({ type: 'category', category: '技术笔记' })
-        }
+        onClick={() => onAction({ type: 'route', route: 'demos' })}
         className="mosaic-tile dm-tile dm-3 group flex flex-col justify-between p-5 text-left sm:p-6"
         style={{ backgroundColor: 'var(--tile-cyan-bg)', color: '#1E1919' }}
       >
         <div className="flex items-start justify-between gap-2">
           <div>
             <span className="tile-label block font-display text-lg font-semibold leading-tight text-[#1E1919] sm:text-xl">
-              雨过山寺 · 武侠水彩 Demo
+              在线 3D 展厅
             </span>
             <span className="tile-meta-muted mt-0.5 block font-mono-tech text-[10px] uppercase tracking-[0.12em] text-[#0B4C5F]">
-              NEW NO.02 · WATERCOLOR WASH · 2-BONE IK
+              LIVE DEMOS · {String(allDemos.length).padStart(2, '0')} INTERACTIVE SCENES
             </span>
           </div>
           <span className="tile-meta shrink-0 whitespace-nowrap rounded bg-black/10 px-2 py-0.5 font-mono-tech text-[10px] font-semibold text-[#0B4C5F] group-hover:bg-white/15">
-            NEW →
+            03
           </span>
         </div>
 
-        {/* Solid -> Wireframe SVG (Faceted Prism / Dropbox Logo Diamond homage) */}
         <div className="relative mt-1 h-16 w-full">
           <svg
             viewBox="0 0 180 72"
@@ -180,9 +182,9 @@ export function PinwheelMosaic({
         </div>
       </button>
 
-      {/* TILE 4: LLM & Technical Notes (Vivid Vermilion - Iconic Giant "Ai" Glyph!) */}
+      {/* TILE 4: Tech Notes & Breakdowns Hub (Vivid Vermilion - Iconic Giant "Ai" Glyph!) */}
       <button
-        onClick={() => onAction({ type: 'category', category: '技术笔记' })}
+        onClick={() => onAction({ type: 'route', route: 'notes' })}
         className="mosaic-tile dm-tile dm-4 group flex flex-col justify-between p-5 text-left sm:p-6"
         style={{ backgroundColor: 'var(--tile-vermilion-bg)', color: '#1E1919' }}
       >
@@ -192,7 +194,7 @@ export function PinwheelMosaic({
               技术笔记
             </span>
             <span className="tile-meta-muted mt-0.5 block font-mono-tech text-[10px] uppercase tracking-[0.12em] text-[#6B1506]">
-              LLM NOTES · CONTENT/NOTES/
+              TECH NOTES · {String(allNotes.length).padStart(2, '0')} ARTICLES
             </span>
           </div>
           <span className="tile-meta-muted font-mono-tech text-[10px] text-[#6B1506]">
@@ -200,7 +202,6 @@ export function PinwheelMosaic({
           </span>
         </div>
 
-        {/* Giant "Ai" Glyph Homage to Dropbox's iconic "Aa" Typography Tile */}
         <div className="relative flex flex-1 items-end justify-end pt-2">
           <svg
             viewBox="0 0 190 124"
@@ -264,9 +265,9 @@ export function PinwheelMosaic({
         )}
       </button>
 
-      {/* TILE 5: Agent Workflows (Electric Chartreuse Lime - Tall Left) */}
+      {/* TILE 5: AI Workflows Hub (Electric Chartreuse Lime) */}
       <button
-        onClick={() => onAction({ type: 'category', category: 'AI 工作流' })}
+        onClick={() => onAction({ type: 'route', route: 'workflows' })}
         className="mosaic-tile dm-tile dm-5 group flex flex-col justify-between p-5 text-left sm:p-6"
         style={{ backgroundColor: 'var(--tile-lime-bg)', color: '#1E1919' }}
       >
@@ -276,7 +277,7 @@ export function PinwheelMosaic({
               AI 工作流
             </span>
             <span className="tile-meta-muted mt-0.5 block font-mono-tech text-[10px] uppercase tracking-[0.12em] text-[#24450A]">
-              AGENTS · SOP · WORKFLOWS
+              WORKFLOWS · {String(allWorkflows.length).padStart(2, '0')} SOPS
             </span>
           </div>
           <span className="tile-meta-muted font-mono-tech text-[10px] text-[#24450A]">
@@ -284,7 +285,6 @@ export function PinwheelMosaic({
           </span>
         </div>
 
-        {/* Modular Agent Nodes SVG (Iconography homage) */}
         <div className="relative flex flex-1 items-end justify-end pt-2">
           <svg
             viewBox="0 0 140 110"
@@ -309,9 +309,9 @@ export function PinwheelMosaic({
         </div>
       </button>
 
-      {/* TILE 6: Papers & Palette Swatches (Warm Tangerine - Color Tile Homage) */}
+      {/* TILE 6: Papers Hub (Warm Tangerine) */}
       <button
-        onClick={() => onAction({ type: 'category', category: '论文拆解' })}
+        onClick={() => onAction({ type: 'route', route: 'papers' })}
         className="mosaic-tile dm-tile dm-6 group flex flex-col justify-between p-5 text-left sm:p-6"
         style={{ backgroundColor: 'var(--tile-tangerine-bg)', color: '#1E1919' }}
       >
@@ -321,7 +321,7 @@ export function PinwheelMosaic({
               论文拆解
             </span>
             <span className="tile-meta-muted mt-0.5 block font-mono-tech text-[10px] uppercase tracking-[0.12em] text-[#5C2704]">
-              PAPERS · RESEARCH NOTES
+              PAPERS · {String(allPapers.length).padStart(2, '0')} READINGS
             </span>
           </div>
           <span className="tile-meta-muted font-mono-tech text-[10px] text-[#5C2704]">
@@ -329,7 +329,6 @@ export function PinwheelMosaic({
           </span>
         </div>
 
-        {/* Overlapping Square + Circle Swatch Badges (Direct Color Tile Homage) */}
         <div className="relative mt-1 h-16 w-full">
           <svg
             viewBox="0 0 180 72"
@@ -352,31 +351,26 @@ export function PinwheelMosaic({
         </div>
       </button>
 
-      {/* TILE 7: Interactive 3D Demo & Linked GitHub Source (Deep Burgundy/Maroon - Imagery Homage) */}
+      {/* TILE 7: Open-Source Repositories Hub (Deep Burgundy/Maroon) */}
       <button
-        onClick={() =>
-          promptDeckDoc
-            ? onAction({ type: 'doc', slug: promptDeckDoc.slug, tab: 'source' })
-            : onAction({ type: 'cards' })
-        }
+        onClick={() => onAction({ type: 'route', route: 'repos' })}
         className="mosaic-tile dm-tile dm-7 group flex flex-col justify-between p-5 text-left sm:p-6"
         style={{ backgroundColor: 'var(--tile-maroon-bg)', color: '#FFFFFF' }}
       >
         <div className="flex items-start justify-between gap-2">
           <div>
             <span className="tile-label block font-display text-lg font-semibold leading-tight text-white sm:text-xl">
-              源码仓库与实时 3D 场景
+              开源仓库合集
             </span>
             <span className="tile-meta-muted mt-0.5 block font-mono-tech text-[10px] uppercase tracking-[0.12em] text-[#FF9EC7]">
-              GITHUB SOURCE · LIVE THREE.JS WEBGL2 DEMO
+              GITHUB REPOS · {String(allRepos.length).padStart(2, '0')} OPEN SOURCE
             </span>
           </div>
           <span className="tile-meta shrink-0 whitespace-nowrap rounded bg-white/15 px-2 py-0.5 font-mono-tech text-[10px] font-semibold text-white">
-            LIVE →
+            07
           </span>
         </div>
 
-        {/* Framed Mountain Landscape Homage to Dropbox's Imagery Tile */}
         <div className="relative mt-2 h-16 w-full">
           <svg
             viewBox="0 0 240 72"
@@ -401,19 +395,19 @@ export function PinwheelMosaic({
         </div>
       </button>
 
-      {/* TILE 8: Archive Schema & Markdown Guide (Soft Lavender - Motion Bezier Homage!) */}
+      {/* TILE 8: Archive Schema & Guide Hub (Soft Lavender) */}
       <button
-        onClick={() => onAction({ type: 'guide' })}
+        onClick={() => onAction({ type: 'route', route: 'guide' })}
         className="mosaic-tile dm-tile dm-8 group flex flex-col justify-between p-5 text-left sm:p-6"
         style={{ backgroundColor: 'var(--tile-lavender-bg)', color: '#1E1919' }}
       >
         <div className="flex items-start justify-between gap-2">
           <div>
             <span className="tile-label block font-display text-lg font-semibold leading-tight text-[#1E1919] sm:text-xl">
-              归档规范与扩展
+              归档规范
             </span>
             <span className="tile-meta-muted mt-0.5 block font-mono-tech text-[10px] uppercase tracking-[0.12em] text-[#441C78]">
-              MARKDOWN SCHEMA · HOW TO ADD
+              SCHEMA · ADD PROJECTS &amp; NOTES
             </span>
           </div>
           <span className="tile-meta-muted font-mono-tech text-[10px] text-[#441C78]">
@@ -421,7 +415,6 @@ export function PinwheelMosaic({
           </span>
         </div>
 
-        {/* Cubic-Bezier Curve with Control Handles (Direct Motion Tile Homage!) */}
         <div className="relative mt-2 h-16 w-full">
           <svg
             viewBox="0 0 200 72"

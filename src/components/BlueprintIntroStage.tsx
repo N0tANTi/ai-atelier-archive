@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { ChevronDown, Search } from 'lucide-react';
 import { siteConfig } from '../site.config';
-import { archiveDocs, allPromptCards } from '../lib/content';
+import { projects, allPromptCards } from '../lib/content';
 import { PinwheelMosaic, type MosaicAction } from './PinwheelMosaic';
 
 interface BlueprintIntroStageProps {
@@ -150,7 +150,7 @@ export function BlueprintIntroStage({
                 {siteConfig.brandEn}
               </span>
               <span className="font-mono-tech text-[10px] text-[var(--brand-blue)]">
-                · {String(archiveDocs.length).padStart(2, '0')} DOCS /{' '}
+                · {String(projects.length).padStart(2, '0')} PROJECTS /{' '}
                 {String(allPromptCards.length).padStart(2, '0')} CARDS
               </span>
             </div>
