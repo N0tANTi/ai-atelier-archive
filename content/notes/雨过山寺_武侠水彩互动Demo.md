@@ -14,6 +14,7 @@ tags:
 summary: "一个以纯代码驱动的 Three.js 武侠水彩互动场景：未引水前全场景为宣纸铅笔线稿，拨动竹槽引水过廊桥后，颜料沿建筑与苍松根部实时向上晕染上色，并辅以配乐《过桥听雨》及程序化雨声、滴水与铜铃音效。"
 featured: true
 repo: "https://github.com/N0tANTi/rain-temple-wuxia"
+demo: "https://n0tanti.github.io/rain-temple-wuxia/"
 demoTag: "THREE.JS · WATERCOLOR WASH SHADER"
 demoControls: "点击竹槽或按 E 引水开声 · 拖动环视 · 滚轮缩放 · R 重置 · 点击「观看短片」自动运镜游览"
 license: "MIT / CC0 1.0"

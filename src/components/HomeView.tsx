@@ -242,7 +242,7 @@ export function HomeView({
                           {featuredDoc.repo?.replace(/^https?:\/\/github\.com\//i, '')}
                         </span>
                         <span className="bg-[var(--brand-blue)] px-2.5 py-0.5 font-mono-tech text-[10px] font-bold text-white transition-colors group-hover:bg-white group-hover:text-[#1E1919]">
-                          OPEN SOURCE →
+                          {featuredDoc.demo ? 'RUN 3D →' : 'OPEN SOURCE →'}
                         </span>
                       </div>
                     </div>
