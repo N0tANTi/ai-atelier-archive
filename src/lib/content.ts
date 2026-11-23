@@ -47,6 +47,11 @@ export interface TocItem {
   level: number;
 }
 
+export interface DownloadLink {
+  label: string;
+  url: string;
+}
+
 export interface ProjectRecord {
   slug: string;
   number: string;
@@ -59,8 +64,11 @@ export interface ProjectRecord {
   featured: boolean;
   repo?: string;
   demo?: string;
+  video?: string;
   demoTag?: string;
   demoControls?: string;
+  runCommand?: string;
+  downloads: DownloadLink[];
   preview?: string;
   license?: string;
   specimens?: string;
@@ -213,6 +221,17 @@ function parseFrontmatter(raw: string): FrontmatterResult {
   }
 
   return { data, body };
+}
+
+function parseDownloads(rawList: unknown): DownloadLink[] {
+  if (!Array.isArray(rawList)) return [];
+  return rawList
+    .map((item) => {
+      const parts = String(item).split('|').map((s) => s.trim());
+      if (parts.length < 2 || !parts[0] || !parts[1]) return null;
+      return { label: parts[0], url: parts[1] };
+    })
+    .filter((d): d is DownloadLink => d !== null);
 }
 
 function parseSourceMap(rawList: unknown): SourceMapEntry[] {
@@ -519,9 +538,13 @@ function buildContentStore() {
       const tags = Array.isArray(d.tags) ? (d.tags as string[]) : [];
       const repo = typeof d.repo === 'string' ? d.repo : undefined;
       const demo = typeof d.demo === 'string' ? d.demo : undefined;
+      const video = typeof d.video === 'string' ? d.video : undefined;
       const demoTag = typeof d.demoTag === 'string' ? d.demoTag : undefined;
       const demoControls =
         typeof d.demoControls === 'string' ? d.demoControls : undefined;
+      const runCommand =
+        typeof d.runCommand === 'string' ? d.runCommand : undefined;
+      const downloads = parseDownloads(d.downloads);
       const preview = typeof d.preview === 'string' ? d.preview : undefined;
       const license = typeof d.license === 'string' ? d.license : undefined;
       const specimens = typeof d.specimens === 'string' ? d.specimens : undefined;
@@ -574,8 +597,11 @@ function buildContentStore() {
         featured: Boolean(d.featured),
         repo,
         demo,
+        video,
         demoTag,
         demoControls,
+        runCommand,
+        downloads,
         preview,
         license,
         specimens,
@@ -621,7 +647,9 @@ export const allPromptCards: PromptCard[] = [
   ...standaloneDocs.flatMap((d) => d.promptCards),
 ];
 
-export const allDemos: ProjectRecord[] = projects.filter((p) => Boolean(p.demo));
+export const allDemos: ProjectRecord[] = projects.filter(
+  (p) => Boolean(p.demo) || Boolean(p.video)
+);
 
 export const allNotes: NoteCatalogEntry[] = [
   ...projects
@@ -670,7 +698,7 @@ export const allRepos: RepoCatalogEntry[] = [
         name: repoSlug.split('/')[1] || p.slug,
         repoSlug,
         repoUrl: p.repo!,
-        demoUrl: p.demo,
+        demoUrl: p.demo || p.video,
         title: p.title,
         description: p.summary,
         license: p.license || 'MIT',

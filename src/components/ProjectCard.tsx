@@ -145,6 +145,12 @@ export function ProjectCard({
               <span>实时 3D 体验</span>
             </span>
           )}
+          {!project.demo && project.video && (
+            <span className="inline-flex items-center gap-1 bg-[#3DD6F5] px-2 py-1 font-mono-tech text-[10px] font-bold text-[#1E1919]">
+              <Play className="h-2.5 w-2.5 fill-current" />
+              <span>1080p 动画成片</span>
+            </span>
+          )}
           {project.promptCards.length > 0 && (
             <span className="inline-flex items-center gap-1 bg-[#FAD24B] px-2 py-1 font-mono-tech text-[10px] font-bold text-[#1E1919]">
               <Layers className="h-2.5 w-2.5" />
@@ -193,9 +199,9 @@ export function ProjectCard({
         </button>
 
         <div className="flex items-center gap-2">
-          {project.demo && (
+          {(project.demo || project.video) && (
             <a
-              href={project.demo}
+              href={project.demo || project.video}
               target="_blank"
               rel="noreferrer"
               className={`inline-flex items-center gap-1 border px-3 py-1.5 font-mono-tech text-[11px] font-semibold transition-colors ${
@@ -204,7 +210,7 @@ export function ProjectCard({
                   : 'border-[var(--hairline-strong)] bg-white text-[var(--ink-base)] hover:border-[var(--brand-blue)] hover:text-[var(--brand-blue)]'
               }`}
             >
-              <span>3D</span>
+              <span>{project.demo ? '3D' : '成片'}</span>
               <ArrowUpRight className="h-3 w-3" />
             </a>
           )}

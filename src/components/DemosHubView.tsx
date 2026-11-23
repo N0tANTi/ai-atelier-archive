@@ -17,13 +17,13 @@ export function DemosHubView({ onOpenProject }: DemosHubViewProps) {
             <span>LIVE INTERACTIVE GALLERY · 在线 3D 展厅</span>
           </div>
           <h1 className="mt-3 font-display text-3xl font-bold text-[#1E1919] sm:text-5xl">
-            在线 3D 交互展厅
+            在线 3D 与动画展厅
             <span className="ml-3 font-mono-tech text-2xl font-normal text-[#0B4C5F] sm:text-3xl">
               ({String(allDemos.length).padStart(2, '0')})
             </span>
           </h1>
           <p className="mt-3 max-w-2xl text-sm leading-relaxed text-[#1E1919]/80">
-            所有可交互 Three.js / WebGL2 作品均汇集于此，点击「站内直接运行 3D」即可按需加载体验，不点击不消耗带宽；亦可一键进入对应项目的完整档案页。
+            汇集所有可交互 Three.js / WebGL2 3D 场景与 Blender 程序化动画成片。点击按钮按需加载运行或播放，平时浏览零带宽消耗；亦可一键直达各项目完整档案页。
           </p>
         </div>
       </section>

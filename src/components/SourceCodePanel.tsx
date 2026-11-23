@@ -36,17 +36,22 @@ export function SourceCodePanel({
 
   const repoUrl = project.repo;
   const demoUrl = project.demo;
+  const videoUrl = project.video;
   const repoSlug = repoUrl
     ? repoUrl.replace(/^https?:\/\/github\.com\//i, '')
     : '';
   const repoName = repoSlug.split('/')[1] || project.slug;
-  const cloneCommand = repoUrl
-    ? `git clone ${repoUrl}.git && cd ${repoName} && npm ci && npm run build && npm run serve`
-    : '';
+  const cloneCommand =
+    project.runCommand ||
+    (repoUrl
+      ? `git clone ${repoUrl}.git && cd ${repoName} && npm ci && npm run build && npm run serve`
+      : '');
 
   const p0 = project.palette[0] || '#2B4464';
   const p1 = project.palette[1] || '#FA551E';
   const p2 = project.palette[2] || '#FAD24B';
+
+  const mediaUrl = demoUrl || videoUrl;
 
   const demoCanvasBlock = (
     <div className="overflow-hidden border border-[var(--ink-base)] bg-[var(--bg-dark-band)] text-white">
@@ -58,14 +63,14 @@ export function SourceCodePanel({
           </span>
         </div>
         <div className="flex items-center gap-2">
-          {demoUrl && (
+          {mediaUrl && (
             <a
-              href={demoUrl}
+              href={mediaUrl}
               target="_blank"
               rel="noreferrer"
               className="inline-flex items-center gap-1 font-mono-tech text-[10px] font-semibold text-white/75 transition-colors hover:text-[#FAD24B]"
             >
-              <span>全屏新窗口打开</span>
+              <span>{demoUrl ? '全屏新窗口打开' : '下载 / 新窗口观看'}</span>
               <ExternalLink className="h-3 w-3" />
             </a>
           )}
@@ -75,7 +80,7 @@ export function SourceCodePanel({
               className="inline-flex items-center gap-1 bg-white/15 px-2 py-0.5 font-mono-tech text-[10px] text-white hover:bg-[#FA551E]"
             >
               <X className="h-3 w-3" />
-              <span>关闭画布</span>
+              <span>{demoUrl ? '关闭画布' : '关闭播放'}</span>
             </button>
           )}
         </div>
@@ -96,6 +101,25 @@ export function SourceCodePanel({
               操作提示：{project.demoControls || '拖动环视 · 滚轮缩放'}
             </span>
             <span className="text-[#B4DC19]">HOSTED ON GITHUB PAGES</span>
+          </div>
+        </div>
+      ) : liveDemoOpen && videoUrl ? (
+        <div>
+          <div className="relative aspect-[16/9] w-full bg-black">
+            <video
+              src={videoUrl}
+              poster={project.preview}
+              controls
+              autoPlay
+              playsInline
+              className="h-full w-full"
+            />
+          </div>
+          <div className="flex flex-wrap items-center justify-between gap-2 border-t border-white/12 bg-black/40 px-5 py-2.5 font-mono-tech text-[10px] text-white/70">
+            <span>
+              {project.demoControls || '1080p 30fps · 含原创配乐'}
+            </span>
+            <span className="text-[#B4DC19]">HOSTED ON GITHUB RELEASES</span>
           </div>
         </div>
       ) : (
@@ -158,7 +182,11 @@ export function SourceCodePanel({
           <div className="absolute inset-0 flex flex-col justify-between p-6">
             <div className="flex items-center justify-between">
               <span className="bg-black/55 px-2.5 py-1 font-mono-tech text-[10px] text-white backdrop-blur-xs">
-                CLICK TO LAUNCH INTERACTIVE 3D
+                {demoUrl
+                  ? 'CLICK TO LAUNCH INTERACTIVE 3D'
+                  : videoUrl
+                    ? 'CLICK TO PLAY 1080P FILM'
+                    : 'OPEN SOURCE PROJECT'}
               </span>
               <div className="flex items-center gap-1.5">
                 {project.palette.map((hex) => (
@@ -182,22 +210,22 @@ export function SourceCodePanel({
                 </p>
               </div>
 
-              {demoUrl && (
+              {mediaUrl && (
                 <div className="flex flex-wrap gap-2">
                   <button
                     onClick={() => setLiveDemoOpen(true)}
                     className="inline-flex items-center gap-2 bg-[var(--brand-blue)] px-4 py-2.5 text-xs font-semibold text-white transition-colors hover:bg-white hover:text-[#1E1919]"
                   >
                     <Play className="h-3.5 w-3.5 fill-current" />
-                    <span>站内直接运行 3D</span>
+                    <span>{demoUrl ? '站内直接运行 3D' : '站内播放 1080p 成片'}</span>
                   </button>
                   <a
-                    href={demoUrl}
+                    href={mediaUrl}
                     target="_blank"
                     rel="noreferrer"
                     className="inline-flex items-center gap-1.5 border border-white/40 bg-black/45 px-4 py-2.5 text-xs font-semibold text-white backdrop-blur-xs transition-colors hover:bg-white hover:text-[#1E1919]"
                   >
-                    <span>全屏体验</span>
+                    <span>{demoUrl ? '全屏体验' : '下载成片'}</span>
                     <ArrowUpRight className="h-3.5 w-3.5" />
                   </a>
                 </div>
@@ -383,13 +411,13 @@ function renderRepoCard(
         )}
         {repoUrl && (
           <a
-            href={`${repoUrl}/tree/main/src`}
+            href={`${repoUrl}/tree/main/${project.sourceMap[0]?.files[0]?.split('/')[0] || 'src'}`}
             target="_blank"
             rel="noreferrer"
             className="inline-flex items-center justify-center gap-1.5 border border-[var(--ink-base)] bg-white px-4 py-2.5 text-xs font-semibold text-[var(--ink-base)] transition-colors hover:bg-[var(--ink-base)] hover:text-white"
           >
             <FileCode2 className="h-3.5 w-3.5" />
-            <span>浏览 src/</span>
+            <span>浏览 {project.sourceMap[0]?.files[0]?.split('/')[0] || 'src'}/</span>
           </a>
         )}
       </div>

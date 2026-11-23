@@ -145,17 +145,17 @@ export function ProjectView({
               </p>
             </div>
 
-            {/* Unified Primary Actions: Live 3D + GitHub Repo */}
+            {/* Unified Primary Actions: Live 3D / Film + GitHub Repo */}
             <div className="flex flex-wrap gap-2.5 lg:col-span-4 lg:justify-end">
-              {project.demo && (
+              {(project.demo || project.video) && (
                 <a
-                  href={project.demo}
+                  href={project.demo || project.video}
                   target="_blank"
                   rel="noreferrer"
                   className="inline-flex items-center gap-1.5 bg-[var(--brand-blue)] px-4 py-2.5 text-xs font-semibold text-white transition-colors hover:bg-[var(--ink-base)]"
                 >
                   <Play className="h-3.5 w-3.5 fill-current" />
-                  <span>全屏体验 3D</span>
+                  <span>{project.demo ? '全屏体验 3D' : '观看 1080p 成片'}</span>
                   <ArrowUpRight className="h-3.5 w-3.5" />
                 </a>
               )}
@@ -187,7 +187,9 @@ export function ProjectView({
                 }`}
               >
                 <Compass className="h-3.5 w-3.5" />
-                <span>01 / 项目概览与 3D 体验</span>
+                <span>
+                  {project.demo ? '01 / 项目概览与 3D 体验' : '01 / 项目概览与成片预览'}
+                </span>
               </button>
 
               {hasPrompts && (
@@ -313,6 +315,28 @@ export function ProjectView({
                   </div>
 
                   <div className="mt-6 border-t border-[var(--blueprint-line)] pt-5">
+                    {project.downloads.length > 0 && (
+                      <div className="mb-5 border-b border-[var(--blueprint-line)] pb-5">
+                        <span className="font-mono-tech text-[10px] font-semibold uppercase tracking-wider text-[var(--brand-blue)]">
+                          RELEASE ASSETS · 工程与素材包下载
+                        </span>
+                        <div className="mt-2.5 flex flex-wrap gap-2">
+                          {project.downloads.map((dl) => (
+                            <a
+                              key={dl.label}
+                              href={dl.url}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="inline-flex items-center gap-1 border border-[var(--hairline-strong)] bg-white px-2.5 py-1.5 font-mono-tech text-[11px] font-semibold text-[var(--ink-base)] transition-colors hover:border-[var(--brand-blue)] hover:bg-[var(--brand-blue)] hover:text-white"
+                            >
+                              <span>{dl.label}</span>
+                              <ArrowUpRight className="h-3 w-3" />
+                            </a>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
                     <div className="flex items-center justify-between">
                       <span className="font-mono-tech text-[10px] font-semibold uppercase tracking-wider text-[var(--ink-muted)]">
                         COLOR PALETTE · 项目色板
