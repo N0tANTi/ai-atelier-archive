@@ -1,4 +1,4 @@
-import { Copy, Check, Maximize2, FileCode2, ArrowUpRight } from 'lucide-react';
+import { Copy, Check, Maximize2, FileCode2, ArrowUpRight, Download } from 'lucide-react';
 import type { PromptCard } from '../lib/content';
 
 interface PromptCardItemProps {
@@ -89,6 +89,61 @@ export function PromptCardItem({
           )}
         </div>
       </div>
+
+      {/* Optional Reference Image(s) Preview + 1-Click Direct Download */}
+      {card.references && card.references.length > 0 && (
+        <div className="border-b border-[var(--hairline)] bg-[var(--bg-subtle)] p-4">
+          <div className="mb-2 flex items-center justify-between">
+            <span className="font-mono-tech text-[10px] font-bold uppercase tracking-[0.12em] text-[var(--brand-blue)]">
+              REFERENCE IMAGE{card.references.length > 1 ? `S (${card.references.length})` : ''} · 本轮参考图
+            </span>
+            <span className="font-mono-tech text-[10px] text-[var(--ink-muted)]">
+              点击大图 / 直接下载
+            </span>
+          </div>
+          <div
+            className={`grid gap-2.5 ${
+              card.references.length > 1 ? 'grid-cols-2' : 'grid-cols-1'
+            }`}
+          >
+            {card.references.map((ref) => (
+              <div
+                key={`${card.id}-${ref.url}`}
+                className="overflow-hidden border border-[var(--hairline-strong)] bg-white"
+              >
+                <button
+                  type="button"
+                  onClick={onFocus}
+                  className="group/img relative block aspect-[16/9] w-full overflow-hidden bg-[#f2efe9]"
+                  title="点击放大查看参考图"
+                >
+                  <img
+                    src={ref.url}
+                    alt={ref.label}
+                    loading="lazy"
+                    className="h-full w-full object-cover transition-transform duration-300 group-hover/img:scale-[1.04]"
+                  />
+                </button>
+                <div className="flex items-center justify-between gap-2 border-t border-[var(--hairline)] px-2.5 py-1.5">
+                  <span className="truncate font-mono-tech text-[10px] font-medium text-[var(--ink-secondary)]">
+                    {ref.label}
+                  </span>
+                  <a
+                    href={ref.url}
+                    download={ref.label}
+                    onClick={(e) => e.stopPropagation()}
+                    className="inline-flex shrink-0 items-center gap-1 bg-[var(--brand-blue)] px-2 py-0.5 font-mono-tech text-[10px] font-semibold text-white transition-colors hover:bg-[var(--ink-base)]"
+                    title={`下载 ${ref.label}`}
+                  >
+                    <Download className="h-2.5 w-2.5" />
+                    <span>下载</span>
+                  </a>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Crisp White Blueprint Body with Numbered Points */}
       <div className={`flex-1 bg-white ${compact ? 'p-5' : 'p-6'}`}>

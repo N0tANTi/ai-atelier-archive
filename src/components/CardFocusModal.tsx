@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { X, Copy, Check, ChevronLeft, ChevronRight, ArrowUpRight } from 'lucide-react';
+import { X, Copy, Check, ChevronLeft, ChevronRight, ArrowUpRight, Download } from 'lucide-react';
 import type { PromptCard } from '../lib/content';
 import { useCopy } from '../lib/useCopy';
 
@@ -93,8 +93,57 @@ export function CardFocusModal({
           </button>
         </div>
 
-        {/* Structured Points */}
-        <div className="px-6 py-6 sm:px-8">
+        {/* Structured Points & Reference Images (scrollable if tall) */}
+        <div className="max-h-[65vh] overflow-y-auto px-6 py-6 sm:px-8">
+          {card.references && card.references.length > 0 && (
+            <div className="mb-5 border border-[var(--blueprint-line-strong)] bg-[var(--bg-subtle)] p-4">
+              <div className="mb-3 flex items-center justify-between">
+                <span className="font-mono-tech text-[10px] font-bold uppercase tracking-[0.14em] text-[var(--brand-blue)]">
+                  REFERENCE ASSETS · 本轮配套参考图（可直接下载后发给模型）
+                </span>
+              </div>
+              <div
+                className={`grid gap-3 ${
+                  card.references.length > 1 ? 'grid-cols-1 sm:grid-cols-2' : 'grid-cols-1'
+                }`}
+              >
+                {card.references.map((ref) => (
+                  <div
+                    key={ref.url}
+                    className="overflow-hidden border border-[var(--hairline-strong)] bg-white"
+                  >
+                    <a
+                      href={ref.url}
+                      target="_blank"
+                      rel="noreferrer"
+                      title="新窗口打开原图"
+                      className="block bg-[#f2efe9]"
+                    >
+                      <img
+                        src={ref.url}
+                        alt={ref.label}
+                        className="max-h-64 w-full object-contain"
+                      />
+                    </a>
+                    <div className="flex items-center justify-between gap-2 border-t border-[var(--hairline)] px-3 py-2">
+                      <span className="truncate font-mono-tech text-[11px] font-semibold text-[var(--ink-base)]">
+                        {ref.label}
+                      </span>
+                      <a
+                        href={ref.url}
+                        download={ref.label}
+                        className="inline-flex shrink-0 items-center gap-1.5 bg-[var(--brand-blue)] px-3 py-1 font-mono-tech text-[10px] font-semibold text-white transition-colors hover:bg-[var(--ink-base)]"
+                      >
+                        <Download className="h-3 w-3" />
+                        <span>下载原图</span>
+                      </a>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
           <div className="space-y-3">
             {card.points.map((point, idx) => (
               <div

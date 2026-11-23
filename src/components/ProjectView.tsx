@@ -477,6 +477,34 @@ export function ProjectView({
           {/* TAB 2: PROMPT CARDS & MASTER ENGINEERING TEMPLATE */}
           {activeTab === 'prompts' && hasPrompts && (
             <div className="space-y-14">
+              {/* Optional Prompt Kit / Reference Pack Download Banner */}
+              {project.downloads.length > 0 && (
+                <div className="flex flex-col items-start justify-between gap-4 border border-[var(--blueprint-line-strong)] bg-[var(--bg-subtle)] p-5 sm:flex-row sm:items-center">
+                  <div>
+                    <span className="font-mono-tech text-[10px] font-bold uppercase tracking-[0.14em] text-[var(--brand-blue)]">
+                      REFERENCE KIT · 配套参考图与离线素材包
+                    </span>
+                    <p className="mt-1 text-xs text-[var(--ink-secondary)]">
+                      每张卡片内均可直接预览并单张下载对应参考图；也可一键打包下载全套素材包与离线图文版。
+                    </p>
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    {project.downloads.map((dl) => (
+                      <a
+                        key={dl.label}
+                        href={dl.url}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="inline-flex items-center gap-1 bg-[var(--ink-base)] px-3 py-1.5 font-mono-tech text-[11px] font-semibold text-white transition-colors hover:bg-[var(--brand-blue)]"
+                      >
+                        <span>{dl.label}</span>
+                        <ArrowUpRight className="h-3 w-3" />
+                      </a>
+                    ))}
+                  </div>
+                </div>
+              )}
+
               {project.promptCards.length > 0 &&
                 (deckLayout === 'grid' ? (
                   <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">

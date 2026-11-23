@@ -10,6 +10,11 @@ export interface SourceMapEntry {
   files: string[];
 }
 
+export interface PromptReferenceImage {
+  label: string;
+  url: string;
+}
+
 export interface PromptCard {
   id: string;
   ownerType: 'project' | 'doc';
@@ -26,6 +31,7 @@ export interface PromptCard {
   tags: string[];
   repoUrl?: string;
   sourceFiles?: string[];
+  references: PromptReferenceImage[];
 }
 
 export interface MasterPromptSection {
@@ -265,13 +271,24 @@ function extractPromptCards(
 ): PromptCard[] {
   const cards: PromptCard[] = [];
   const cardRegex =
-    /^###\s*(?:卡片|Card)\s*#?(\d+)\s*[｜|:\-·]\s*(.+?)\s*\n+```[a-zA-Z0-9_-]*\n([\s\S]*?)```/gim;
+    /^###\s*(?:卡片|Card)\s*#?(\d+)\s*[｜|:\-·]\s*(.+?)\s*\n+((?:!\[[^\]]*\]\([^)]+\)\s*\n+)*)```[a-zA-Z0-9_-]*\n([\s\S]*?)```/gim;
 
   let match: RegExpExecArray | null;
   while ((match = cardRegex.exec(body)) !== null) {
     const num = parseInt(match[1], 10);
     const rawHeading = match[2].trim();
-    const rawPrompt = match[3].trim();
+    const refsBlock = match[3] || '';
+    const rawPrompt = match[4].trim();
+
+    const references: PromptReferenceImage[] = [];
+    const imgRegex = /!\[([^\]]*)\]\(([^)]+)\)/g;
+    let imgMatch: RegExpExecArray | null;
+    while ((imgMatch = imgRegex.exec(refsBlock)) !== null) {
+      references.push({
+        label: imgMatch[1].trim() || `ref-${num}`,
+        url: imgMatch[2].trim(),
+      });
+    }
 
     let title = rawHeading;
     let stage: string | undefined;
@@ -322,6 +339,7 @@ function extractPromptCards(
       tags,
       repoUrl,
       sourceFiles: matchedSource?.files,
+      references,
     });
   }
 
