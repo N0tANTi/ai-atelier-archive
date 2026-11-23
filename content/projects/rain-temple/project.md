@@ -16,6 +16,7 @@ repo: "https://github.com/N0tANTi/rain-temple-wuxia"
 demo: "https://n0tanti.github.io/rain-temple-wuxia/"
 demoTag: "THREE.JS · WATERCOLOR WASH SHADER"
 demoControls: "点击竹槽或按 E 引水开声 · 拖动环视 · 滚轮缩放 · R 重置 · 点击「观看短片」自动运镜游览"
+preview: "./previews/rain-temple-cover.jpg"
 license: "MIT / CC0 1.0"
 palette:
   - "#31554B"
