@@ -186,7 +186,9 @@ export function SourceCodePanel({
                   ? 'CLICK TO LAUNCH INTERACTIVE 3D'
                   : videoUrl
                     ? 'CLICK TO PLAY 1080P FILM'
-                    : 'OPEN SOURCE PROJECT'}
+                    : project.downloads.length > 0
+                      ? 'WINDOWS DESKTOP RELEASE'
+                      : 'OPEN SOURCE PROJECT'}
               </span>
               <div className="flex items-center gap-1.5">
                 {project.palette.map((hex) => (
@@ -210,7 +212,7 @@ export function SourceCodePanel({
                 </p>
               </div>
 
-              {mediaUrl && (
+              {mediaUrl ? (
                 <div className="flex flex-wrap gap-2">
                   <button
                     onClick={() => setLiveDemoOpen(true)}
@@ -229,6 +231,20 @@ export function SourceCodePanel({
                     <ArrowUpRight className="h-3.5 w-3.5" />
                   </a>
                 </div>
+              ) : (
+                project.downloads[0] && (
+                  <div className="flex flex-wrap gap-2">
+                    <a
+                      href={project.downloads[0].url}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="inline-flex items-center gap-2 bg-[var(--brand-blue)] px-4 py-2.5 text-xs font-semibold text-white transition-colors hover:bg-white hover:text-[#1E1919]"
+                    >
+                      <span>下载 Windows 试玩包</span>
+                      <ArrowUpRight className="h-3.5 w-3.5" />
+                    </a>
+                  </div>
+                )
               )}
             </div>
           </div>

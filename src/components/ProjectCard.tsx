@@ -151,6 +151,12 @@ export function ProjectCard({
               <span>1080p 动画成片</span>
             </span>
           )}
+          {!project.demo && !project.video && project.downloads.length > 0 && (
+            <span className="inline-flex items-center gap-1 bg-[#B4DC19] px-2 py-1 font-mono-tech text-[10px] font-bold text-[#1E1919]">
+              <ArrowUpRight className="h-2.5 w-2.5" />
+              <span>Windows 试玩包</span>
+            </span>
+          )}
           {project.promptCards.length > 0 && (
             <span className="inline-flex items-center gap-1 bg-[#FAD24B] px-2 py-1 font-mono-tech text-[10px] font-bold text-[#1E1919]">
               <Layers className="h-2.5 w-2.5" />
@@ -199,9 +205,9 @@ export function ProjectCard({
         </button>
 
         <div className="flex items-center gap-2">
-          {(project.demo || project.video) && (
+          {(project.demo || project.video || project.downloads[0]) && (
             <a
-              href={project.demo || project.video}
+              href={project.demo || project.video || project.downloads[0]?.url}
               target="_blank"
               rel="noreferrer"
               className={`inline-flex items-center gap-1 border px-3 py-1.5 font-mono-tech text-[11px] font-semibold transition-colors ${
@@ -210,7 +216,7 @@ export function ProjectCard({
                   : 'border-[var(--hairline-strong)] bg-white text-[var(--ink-base)] hover:border-[var(--brand-blue)] hover:text-[var(--brand-blue)]'
               }`}
             >
-              <span>{project.demo ? '3D' : '成片'}</span>
+              <span>{project.demo ? '3D' : project.video ? '成片' : '试玩包'}</span>
               <ArrowUpRight className="h-3 w-3" />
             </a>
           )}

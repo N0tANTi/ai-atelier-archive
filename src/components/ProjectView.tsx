@@ -145,17 +145,23 @@ export function ProjectView({
               </p>
             </div>
 
-            {/* Unified Primary Actions: Live 3D / Film + GitHub Repo */}
+            {/* Unified Primary Actions: Live 3D / Film / Desktop Release + GitHub Repo */}
             <div className="flex flex-wrap gap-2.5 lg:col-span-4 lg:justify-end">
-              {(project.demo || project.video) && (
+              {(project.demo || project.video || project.downloads[0]) && (
                 <a
-                  href={project.demo || project.video}
+                  href={project.demo || project.video || project.downloads[0]?.url}
                   target="_blank"
                   rel="noreferrer"
                   className="inline-flex items-center gap-1.5 bg-[var(--brand-blue)] px-4 py-2.5 text-xs font-semibold text-white transition-colors hover:bg-[var(--ink-base)]"
                 >
                   <Play className="h-3.5 w-3.5 fill-current" />
-                  <span>{project.demo ? '全屏体验 3D' : '观看 1080p 成片'}</span>
+                  <span>
+                    {project.demo
+                      ? '全屏体验 3D'
+                      : project.video
+                        ? '观看 1080p 成片'
+                        : '下载 Windows 试玩版'}
+                  </span>
                   <ArrowUpRight className="h-3.5 w-3.5" />
                 </a>
               )}
@@ -188,7 +194,11 @@ export function ProjectView({
               >
                 <Compass className="h-3.5 w-3.5" />
                 <span>
-                  {project.demo ? '01 / 项目概览与 3D 体验' : '01 / 项目概览与成片预览'}
+                  {project.demo
+                    ? '01 / 项目概览与 3D 体验'
+                    : project.video
+                      ? '01 / 项目概览与成片预览'
+                      : '01 / 项目概览与试玩下载'}
                 </span>
               </button>
 
